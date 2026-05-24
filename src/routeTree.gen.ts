@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingProfileRouteImport } from './routes/onboarding.profile'
+import { Route as OnboardingPactRouteImport } from './routes/onboarding.pact'
 import { Route as OnboardingAvatarRouteImport } from './routes/onboarding.avatar'
 import { Route as AppQuestRouteImport } from './routes/_app.quest'
 import { Route as AppPactRouteImport } from './routes/_app.pact'
@@ -34,6 +35,11 @@ const IndexRoute = IndexRouteImport.update({
 const OnboardingProfileRoute = OnboardingProfileRouteImport.update({
   id: '/onboarding/profile',
   path: '/onboarding/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingPactRoute = OnboardingPactRouteImport.update({
+  id: '/onboarding/pact',
+  path: '/onboarding/pact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingAvatarRoute = OnboardingAvatarRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/pact': typeof AppPactRoute
   '/quest': typeof AppQuestRoute
   '/onboarding/avatar': typeof OnboardingAvatarRoute
+  '/onboarding/pact': typeof OnboardingPactRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
 }
 export interface FileRoutesByTo {
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/pact': typeof AppPactRoute
   '/quest': typeof AppQuestRoute
   '/onboarding/avatar': typeof OnboardingAvatarRoute
+  '/onboarding/pact': typeof OnboardingPactRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
 }
 export interface FileRoutesById {
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/_app/pact': typeof AppPactRoute
   '/_app/quest': typeof AppQuestRoute
   '/onboarding/avatar': typeof OnboardingAvatarRoute
+  '/onboarding/pact': typeof OnboardingPactRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
 }
 export interface FileRouteTypes {
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/pact'
     | '/quest'
     | '/onboarding/avatar'
+    | '/onboarding/pact'
     | '/onboarding/profile'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/pact'
     | '/quest'
     | '/onboarding/avatar'
+    | '/onboarding/pact'
     | '/onboarding/profile'
   id:
     | '__root__'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/_app/pact'
     | '/_app/quest'
     | '/onboarding/avatar'
+    | '/onboarding/pact'
     | '/onboarding/profile'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +182,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   OnboardingAvatarRoute: typeof OnboardingAvatarRoute
+  OnboardingPactRoute: typeof OnboardingPactRoute
   OnboardingProfileRoute: typeof OnboardingProfileRoute
 }
 
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding/profile'
       fullPath: '/onboarding/profile'
       preLoaderRoute: typeof OnboardingProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/pact': {
+      id: '/onboarding/pact'
+      path: '/onboarding/pact'
+      fullPath: '/onboarding/pact'
+      preLoaderRoute: typeof OnboardingPactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding/avatar': {
@@ -290,8 +310,19 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   OnboardingAvatarRoute: OnboardingAvatarRoute,
+  OnboardingPactRoute: OnboardingPactRoute,
   OnboardingProfileRoute: OnboardingProfileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
