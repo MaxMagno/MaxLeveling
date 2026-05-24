@@ -9,10 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingProfileRouteImport } from './routes/onboarding.profile'
 import { Route as OnboardingAvatarRouteImport } from './routes/onboarding.avatar'
+import { Route as AppQuestRouteImport } from './routes/_app.quest'
+import { Route as AppPactRouteImport } from './routes/_app.pact'
+import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
+import { Route as AppHistoryRouteImport } from './routes/_app.history'
+import { Route as AppEventsRouteImport } from './routes/_app.events'
+import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppCheckinRouteImport } from './routes/_app.checkin'
+import { Route as AppAvatarRouteImport } from './routes/_app.avatar'
 
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -28,39 +41,147 @@ const OnboardingAvatarRoute = OnboardingAvatarRouteImport.update({
   path: '/onboarding/avatar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppQuestRoute = AppQuestRouteImport.update({
+  id: '/quest',
+  path: '/quest',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPactRoute = AppPactRouteImport.update({
+  id: '/pact',
+  path: '/pact',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInventoryRoute = AppInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEventsRoute = AppEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCheckinRoute = AppCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAvatarRoute = AppAvatarRouteImport.update({
+  id: '/avatar',
+  path: '/avatar',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/avatar': typeof AppAvatarRoute
+  '/checkin': typeof AppCheckinRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/events': typeof AppEventsRoute
+  '/history': typeof AppHistoryRoute
+  '/inventory': typeof AppInventoryRoute
+  '/pact': typeof AppPactRoute
+  '/quest': typeof AppQuestRoute
   '/onboarding/avatar': typeof OnboardingAvatarRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/avatar': typeof AppAvatarRoute
+  '/checkin': typeof AppCheckinRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/events': typeof AppEventsRoute
+  '/history': typeof AppHistoryRoute
+  '/inventory': typeof AppInventoryRoute
+  '/pact': typeof AppPactRoute
+  '/quest': typeof AppQuestRoute
   '/onboarding/avatar': typeof OnboardingAvatarRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_app/avatar': typeof AppAvatarRoute
+  '/_app/checkin': typeof AppCheckinRoute
+  '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/events': typeof AppEventsRoute
+  '/_app/history': typeof AppHistoryRoute
+  '/_app/inventory': typeof AppInventoryRoute
+  '/_app/pact': typeof AppPactRoute
+  '/_app/quest': typeof AppQuestRoute
   '/onboarding/avatar': typeof OnboardingAvatarRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/onboarding/avatar' | '/onboarding/profile'
+  fullPaths:
+    | '/'
+    | '/avatar'
+    | '/checkin'
+    | '/dashboard'
+    | '/events'
+    | '/history'
+    | '/inventory'
+    | '/pact'
+    | '/quest'
+    | '/onboarding/avatar'
+    | '/onboarding/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/onboarding/avatar' | '/onboarding/profile'
-  id: '__root__' | '/' | '/onboarding/avatar' | '/onboarding/profile'
+  to:
+    | '/'
+    | '/avatar'
+    | '/checkin'
+    | '/dashboard'
+    | '/events'
+    | '/history'
+    | '/inventory'
+    | '/pact'
+    | '/quest'
+    | '/onboarding/avatar'
+    | '/onboarding/profile'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/_app/avatar'
+    | '/_app/checkin'
+    | '/_app/dashboard'
+    | '/_app/events'
+    | '/_app/history'
+    | '/_app/inventory'
+    | '/_app/pact'
+    | '/_app/quest'
+    | '/onboarding/avatar'
+    | '/onboarding/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
   OnboardingAvatarRoute: typeof OnboardingAvatarRoute
   OnboardingProfileRoute: typeof OnboardingProfileRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -82,11 +203,92 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingAvatarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/quest': {
+      id: '/_app/quest'
+      path: '/quest'
+      fullPath: '/quest'
+      preLoaderRoute: typeof AppQuestRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/pact': {
+      id: '/_app/pact'
+      path: '/pact'
+      fullPath: '/pact'
+      preLoaderRoute: typeof AppPactRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory': {
+      id: '/_app/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AppInventoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/history': {
+      id: '/_app/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/events': {
+      id: '/_app/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof AppEventsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/checkin': {
+      id: '/_app/checkin'
+      path: '/checkin'
+      fullPath: '/checkin'
+      preLoaderRoute: typeof AppCheckinRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/avatar': {
+      id: '/_app/avatar'
+      path: '/avatar'
+      fullPath: '/avatar'
+      preLoaderRoute: typeof AppAvatarRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppAvatarRoute: typeof AppAvatarRoute
+  AppCheckinRoute: typeof AppCheckinRoute
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppEventsRoute: typeof AppEventsRoute
+  AppHistoryRoute: typeof AppHistoryRoute
+  AppInventoryRoute: typeof AppInventoryRoute
+  AppPactRoute: typeof AppPactRoute
+  AppQuestRoute: typeof AppQuestRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAvatarRoute: AppAvatarRoute,
+  AppCheckinRoute: AppCheckinRoute,
+  AppDashboardRoute: AppDashboardRoute,
+  AppEventsRoute: AppEventsRoute,
+  AppHistoryRoute: AppHistoryRoute,
+  AppInventoryRoute: AppInventoryRoute,
+  AppPactRoute: AppPactRoute,
+  AppQuestRoute: AppQuestRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
   OnboardingAvatarRoute: OnboardingAvatarRoute,
   OnboardingProfileRoute: OnboardingProfileRoute,
 }
