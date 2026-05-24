@@ -25,6 +25,7 @@ const initialState: GameState = {
   streak: 0,
   bestStreak: 0,
   pact: "mantener",
+  pactConfigured: false,
   weekStartIso: mondayIso(),
   exercises: DEFAULT_EXERCISES,
   history: [],
