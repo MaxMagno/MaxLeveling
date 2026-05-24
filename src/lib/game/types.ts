@@ -65,6 +65,7 @@ export interface GameState {
   streak: number;
   bestStreak: number;
   pact: PactType;
+  pactConfigured: boolean;
   weekStartIso: string;    // monday iso date
   exercises: Exercise[];
   history: DailyLog[];
