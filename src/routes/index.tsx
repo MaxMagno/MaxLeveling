@@ -7,5 +7,6 @@ function Index() {
   const { state } = useGame();
   if (!state.profile) return <Navigate to="/onboarding/profile" />;
   if (!state.avatar) return <Navigate to="/onboarding/avatar" />;
+  if (!state.pactConfigured) return <Navigate to="/onboarding/pact" />;
   return <Navigate to="/dashboard" />;
 }
