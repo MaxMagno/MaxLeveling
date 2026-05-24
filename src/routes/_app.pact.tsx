@@ -42,9 +42,8 @@ function Pact() {
           {OPTIONS.map((o) => {
             const active = state.pact === o.id;
             return (
-              <div key={o.id}
-                className={`panel p-4 cursor-pointer transition ${active ? "panel-neon" : "hover:panel-neon"}`}
-                onClick={() => setPact(o.id)}>
+              <button key={o.id} type="button" onClick={() => setPact(o.id)}
+                className={`text-left panel p-4 transition ${active ? "panel-neon" : ""}`}>
                 <div className="flex items-center justify-between mb-1">
                   <div className="font-display text-sm">{o.title}</div>
                   <span className="chip">{o.mult}</span>
@@ -60,13 +59,13 @@ function Pact() {
                     Pacto activo
                   </div>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
         <div className="flex justify-end mt-5">
           <NeonButton onClick={() => setPact(rec)} variant="violet">
-            Aplicar recomendación
+            Aplicar recomendación ({OPTIONS.find(o => o.id === rec)?.title.split("·")[1]?.trim()})
           </NeonButton>
         </div>
       </SystemPanel>

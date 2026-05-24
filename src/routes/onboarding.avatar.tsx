@@ -24,7 +24,7 @@ function AvatarStep() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     setAvatar(a);
-    nav({ to: "/dashboard" });
+    nav({ to: "/onboarding/pact" });
   };
 
   return (
