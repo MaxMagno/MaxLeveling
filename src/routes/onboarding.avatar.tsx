@@ -12,13 +12,12 @@ export const Route = createFileRoute("/onboarding/avatar")({ component: AvatarSt
 function AvatarStep() {
   const { state, setAvatar } = useGame();
   const nav = useNavigate();
-  if (!state.profile) return <Navigate to="/onboarding/profile" />;
-
   const [a, setA] = useState({
     name: "Aria", style: "femenino" as AvatarStyle,
     skinTone: "media" as SkinTone, hairColor: "azul_oscuro" as HairColor,
     hairStyle: "largo_liso" as HairStyle, eyeColor: "azul" as EyeColor,
   });
+  if (!state.profile) return <Navigate to="/onboarding/profile" />;
   const upd = <K extends keyof typeof a>(k: K, v: (typeof a)[K]) =>
     setA((s) => ({ ...s, [k]: v }));
 
