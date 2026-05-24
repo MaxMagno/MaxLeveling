@@ -63,7 +63,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     state,
     setProfile: (p) => setState((s) => ({ ...s, profile: p })),
     setAvatar: (a) => setState((s) => ({ ...s, avatar: a })),
-    setPact: (p) => setState((s) => ({ ...s, pact: p, weekStartIso: mondayIso() })),
+    setPact: (p) => setState((s) => ({ ...s, pact: p, pactConfigured: true, weekStartIso: mondayIso() })),
     submitDaily: (values) => {
       const mult = PACT_MULTIPLIER[state.pact];
       // % cumplido medio frente a target
