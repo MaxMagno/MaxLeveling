@@ -40,8 +40,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MaxLeveling — Sistema de progresión" },
+      { title: "MaxLeveling — Sistema de cazadores" },
       { name: "description", content: "Misiones diarias, XP, racha y afinidad. Eleva tu nivel cada día." },
+      { property: "og:title", content: "MaxLeveling — Sistema de cazadores" },
+      { name: "twitter:title", content: "MaxLeveling — Sistema de cazadores" },
+      { property: "og:description", content: "Misiones diarias, XP, racha y afinidad. Eleva tu nivel cada día." },
+      { name: "twitter:description", content: "Misiones diarias, XP, racha y afinidad. Eleva tu nivel cada día." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e6c86d8b-5ff4-4ff4-9d96-f542a14b3a7b/id-preview-1d643b1c--55ccbe2b-c1cb-4083-a9a1-e41d5bc01d22.lovable.app-1779650240295.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e6c86d8b-5ff4-4ff4-9d96-f542a14b3a7b/id-preview-1d643b1c--55ccbe2b-c1cb-4083-a9a1-e41d5bc01d22.lovable.app-1779650240295.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
