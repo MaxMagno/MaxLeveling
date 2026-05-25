@@ -1,10 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { AvatarQuote } from "@/components/ml/AvatarQuote";
 import { SystemPanel, SystemMessage } from "@/components/ml/SystemPanel";
 import { ActiveEffectsBar } from "@/components/ml/ActiveEffectsBar";
 import { NeonButton } from "@/components/ml/NeonButton";
 import { Badge } from "@/components/ml/Badge";
 import { TextInput } from "@/components/ml/Field";
+import {
+  getAvatarMessage, isStreakMilestone, type AvatarActionType,
+} from "@/lib/game/avatarMessages";
 import { useGame } from "@/lib/game/store";
 import {
   PACT_LABEL, PACT_MULTIPLIER, type EventCompletionNotice, type Exercise,
@@ -84,6 +88,7 @@ function Quest() {
   const [done, setDone] = useState(state.todayLog ?? null);
   const [eventCompletions, setEventCompletions] = useState<EventCompletionNotice[]>([]);
   const [itemMessages, setItemMessages] = useState<string[]>([]);
+  const [avatarQuote, setAvatarQuote] = useState<string | null>(null);
 
   const restDay = !!state.todayLog?.restAuthorized;
 
@@ -93,6 +98,25 @@ function Quest() {
     setDone(log);
     setEventCompletions(completions);
     setItemMessages(msgs);
+
+    let action: AvatarActionType = "mission_failed";
+    if (log.restAuthorized) action = "rest_pass_used";
+    else if (log.completed) {
+      action = (log.xpEarned ?? 0) >= 150 ? "mission_bonus" : "mission_completed";
+    }
+    if (isStreakMilestone(state.streak + (log.completed ? 1 : 0))) {
+      action = "streak_milestone";
+    }
+    setAvatarQuote(
+      getAvatarMessage({
+        affinity: state.affinity,
+        actionType: action,
+        streak: state.streak,
+        userName: state.profile?.name,
+        bonusAchieved: (log.xpEarned ?? 0) >= 150,
+        completed: log.completed,
+      }),
+    );
     if (log.completed && typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -148,10 +172,25 @@ function Quest() {
         <SystemMessage key={`item-${i}`}>{msg}</SystemMessage>
       ))}
 
+      {avatarQuote && (
+        <SystemPanel eyebrow="Administrador/a del sistema" title="Transmisión" neon>
+          <AvatarQuote message={avatarQuote} />
+        </SystemPanel>
+      )}
+
       {eventCompletions.map((n) => (
         <SystemMessage key={n.eventId}>
           Evento completado: <span className="text-neon font-display">{n.eventName}</span>.
           {" "}Has obtenido <span className="text-violet font-display">{n.itemName}</span> en tu inventario.
+          {" "}
+          <span className="block mt-2 text-violet/90 italic">
+            &ldquo;{getAvatarMessage({
+              affinity: state.affinity,
+              actionType: "event_completed",
+              eventName: n.eventName,
+              itemName: n.itemName,
+            })}&rdquo;
+          </span>
         </SystemMessage>
       ))}
 

@@ -7,23 +7,13 @@ import { ActiveEffectsBar } from "@/components/ml/ActiveEffectsBar";
 import { AvatarCard } from "@/components/ml/AvatarCard";
 import { useGame } from "@/lib/game/store";
 import { checkinMonthStatus } from "@/lib/game/bodyCheckin";
+import { getAvatarMessage, resolveDashboardAction } from "@/lib/game/avatarMessages";
 import {
   PACT_LABEL, PACT_MULTIPLIER, PHASE_LABEL, avatarPhase,
   nextLevelXp, rankFor, XP_THRESHOLDS,
 } from "@/lib/game/types";
 
 export const Route = createFileRoute("/_app/dashboard")({ component: Dashboard });
-
-function avatarLine(affinity: number, completedToday: boolean, streak: number, name: string) {
-  const phase = avatarPhase(affinity);
-  if (completedToday) {
-    if (phase >= 4) return `Buen trabajo, ${name}. Cada día confirmas por qué confío en ti.`;
-    if (phase >= 2) return `Misión registrada. Vas por el camino correcto.`;
-    return `Confirmado. Sigue así y empezaré a creer en ti.`;
-  }
-  if (streak >= 3) return `Tu racha de ${streak} días sigue viva. Hoy también, ${name}.`;
-  return `Misión diaria activada. El sistema te espera.`;
-}
 
 function Dashboard() {
   const { state } = useGame();
@@ -35,7 +25,12 @@ function Dashboard() {
   const completedToday = !!state.todayLog?.completed;
   const restToday = !!state.todayLog?.restAuthorized;
   const checkinStatus = checkinMonthStatus(state.bodyCheckins);
-  const line = avatarLine(state.affinity, completedToday, state.streak, state.profile!.name);
+  const line = getAvatarMessage({
+    affinity: state.affinity,
+    actionType: resolveDashboardAction(state.affinity, state.streak, state.todayLog),
+    streak: state.streak,
+    userName: state.profile!.name,
+  });
   const mult = PACT_MULTIPLIER[state.pact];
 
   return (

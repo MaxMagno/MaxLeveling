@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SystemMessage } from "@/components/ml/SystemPanel";
+import { AvatarQuote } from "@/components/ml/AvatarQuote";
+import { SystemPanel, SystemMessage } from "@/components/ml/SystemPanel";
 import { NeonButton } from "@/components/ml/NeonButton";
 import { Badge } from "@/components/ml/Badge";
 import { useGame } from "@/lib/game/store";
+import { getAvatarMessage, pactToAvatarAction } from "@/lib/game/avatarMessages";
 import { PACT_LABEL, recommendWeeklyPact, type PactType } from "@/lib/game/types";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_app/pact")({ component: Pact });
 
@@ -28,6 +31,26 @@ function Pact() {
   const done = last7.filter((h) => h.completed).length;
   const rec = recommendWeeklyPact(state.history);
   const recOption = OPTIONS.find((o) => o.id === rec)!;
+  const [avatarQuote, setAvatarQuote] = useState(() =>
+    getAvatarMessage({
+      affinity: state.affinity,
+      actionType: pactToAvatarAction(state.pact),
+      pactChoice: state.pact,
+      streak: state.streak,
+    }),
+  );
+
+  const applyPact = (pact: PactType) => {
+    setPact(pact);
+    setAvatarQuote(
+      getAvatarMessage({
+        affinity: state.affinity,
+        actionType: pactToAvatarAction(pact),
+        pactChoice: pact,
+        streak: state.streak,
+      }),
+    );
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-5 sm:space-y-6 animate-fade-in-up">
@@ -44,6 +67,10 @@ function Pact() {
         {" "}(x{recOption.mult.toFixed(2)}) según tu progresión saludable. Puedes aceptarla o elegir otro pacto.
       </SystemMessage>
 
+      <SystemPanel eyebrow="Administrador/a del sistema" title="Transmisión" neon>
+        <AvatarQuote message={avatarQuote} />
+      </SystemPanel>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {OPTIONS.map((o) => {
           const active = state.pact === o.id;
@@ -54,7 +81,7 @@ function Pact() {
           : o.mult >= 0.9 ? "var(--warning)"
           : "var(--destructive)";
           return (
-            <button key={o.id} type="button" onClick={() => setPact(o.id)}
+            <button key={o.id} type="button" onClick={() => applyPact(o.id)}
               className={`text-left panel p-5 transition group relative ${active ? "panel-neon" : ""} ${recommended ? "ring-1 ring-[color:var(--success)]/40" : ""}`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -82,7 +109,7 @@ function Pact() {
       </div>
 
       <div className="flex justify-end">
-        <NeonButton onClick={() => setPact(rec)} variant="violet">
+        <NeonButton onClick={() => applyPact(rec)} variant="violet">
           ⚡ Aplicar recomendación ({recOption.title})
         </NeonButton>
       </div>

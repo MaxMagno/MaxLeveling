@@ -5,24 +5,21 @@ import { NeonButton } from "@/components/ml/NeonButton";
 import { Badge } from "@/components/ml/Badge";
 import { XPBar } from "@/components/ml/XPBar";
 import { useGame } from "@/lib/game/store";
+import { getAvatarMessage } from "@/lib/game/avatarMessages";
 import { PHASE_LABEL, avatarPhase } from "@/lib/game/types";
 
 export const Route = createFileRoute("/_app/avatar")({ component: AvatarView });
-
-const PHRASES = [
-  "",
-  "Aún no te conozco. Demuéstrame quién eres.",
-  "Empiezo a confiar en tu constancia.",
-  "Tu disciplina habla por ti. Sigamos.",
-  "Eres alguien en quien apoyarse. Lo aprecio.",
-  "Has llegado lejos. Estoy orgulloso/a de ti.",
-];
 
 function AvatarView() {
   const { state, reset } = useGame();
   const a = state.avatar!;
   const phase = avatarPhase(state.affinity);
-  const phrase = PHRASES[phase];
+  const phrase = getAvatarMessage({
+    affinity: state.affinity,
+    actionType: "app_start",
+    streak: state.streak,
+    userName: state.profile?.name,
+  });
 
   return (
     <div className="space-y-5 sm:space-y-6 animate-fade-in-up">

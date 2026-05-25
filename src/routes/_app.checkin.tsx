@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { AvatarQuote } from "@/components/ml/AvatarQuote";
 import { SystemPanel, SystemMessage } from "@/components/ml/SystemPanel";
 import { Field, Select, TextInput } from "@/components/ml/Field";
 import { NeonButton } from "@/components/ml/NeonButton";
@@ -67,7 +68,7 @@ function Checkin() {
 
       {latest && (
         <SystemPanel eyebrow="Último registro" title={latest.date} neon>
-          <p className="text-sm text-violet/90 italic mb-3">&ldquo;{latest.avatarFeedback}&rdquo;</p>
+          <AvatarQuote message={latest.avatarFeedback} className="mb-3" />
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
               <span className="text-muted-foreground">Peso</span>

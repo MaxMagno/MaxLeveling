@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { AvatarQuote } from "@/components/ml/AvatarQuote";
 import { SystemPanel, SystemMessage } from "@/components/ml/SystemPanel";
 import { ActiveEffectsBar } from "@/components/ml/ActiveEffectsBar";
 import { useGame } from "@/lib/game/store";
 import { itemById, itemRarityLabel } from "@/lib/game/mock";
+import { getAvatarMessage, itemUsedToAvatarAction } from "@/lib/game/avatarMessages";
 import { inventoryQty, PENDING_EFFECT_ITEMS } from "@/lib/game/items";
 import type { ItemId } from "@/lib/game/types";
 
@@ -19,10 +21,21 @@ const ITEM_ORDER: ItemId[] = [
 function Inventory() {
   const { state, useItem } = useGame();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [avatarQuote, setAvatarQuote] = useState<string | null>(null);
 
   const onUse = (itemId: ItemId) => {
     const result = useItem(itemId);
     setFeedback(result.message);
+    if (result.ok) {
+      setAvatarQuote(
+        getAvatarMessage({
+          affinity: state.affinity,
+          actionType: itemUsedToAvatarAction(itemId),
+          itemUsed: itemId,
+          itemName: itemById(itemId).name,
+        }),
+      );
+    }
   };
 
   return (
@@ -32,6 +45,12 @@ function Inventory() {
       </SystemMessage>
 
       {feedback && <SystemMessage>{feedback}</SystemMessage>}
+
+      {avatarQuote && (
+        <SystemPanel eyebrow="Administrador/a del sistema" title="Transmisión" neon>
+          <AvatarQuote message={avatarQuote} />
+        </SystemPanel>
+      )}
 
       <ActiveEffectsBar effects={state.effects} />
 

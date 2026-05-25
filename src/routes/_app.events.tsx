@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AvatarQuote } from "@/components/ml/AvatarQuote";
 import { SystemPanel, SystemMessage } from "@/components/ml/SystemPanel";
 import { Badge } from "@/components/ml/Badge";
+import { getAvatarMessage } from "@/lib/game/avatarMessages";
 import { useGame } from "@/lib/game/store";
 import { eventRewardLabel } from "@/lib/game/mock";
 
@@ -9,6 +11,15 @@ export const Route = createFileRoute("/_app/events")({ component: Events });
 function Events() {
   const { state } = useGame();
   const activeCount = state.events.filter((e) => e.status === "active").length;
+  const lastCompleted = [...state.events]
+    .filter((e) => e.status === "completed")
+    .sort((a, b) => b.id.localeCompare(a.id))[0];
+  const introQuote = getAvatarMessage({
+    affinity: state.affinity,
+    actionType: lastCompleted ? "event_completed" : "app_start",
+    eventName: lastCompleted?.name,
+    streak: state.streak,
+  });
 
   return (
     <div className="space-y-6">
@@ -18,6 +29,9 @@ function Events() {
           <> · <span className="text-neon">{activeCount} en curso</span></>
         )}
       </SystemMessage>
+      <SystemPanel eyebrow="Administrador/a del sistema" title="Transmisión" neon>
+        <AvatarQuote message={introQuote} />
+      </SystemPanel>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {state.events.map((e) => {
           const pct = Math.round((e.progress / e.target) * 100);

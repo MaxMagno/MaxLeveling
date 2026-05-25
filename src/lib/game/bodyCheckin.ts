@@ -1,16 +1,8 @@
+import { bodyCheckinAvatarMessage } from "./avatarMessages";
 import { addInventoryItem } from "./items";
 import type {
   BodyCheckin, BodyCheckinInput, DailyLog, GameState, RegisterBodyCheckinResult,
 } from "./types";
-
-const AVATAR_FEEDBACK = {
-  first: "Registro corporal inicial completado. A partir de ahora, el sistema medirá tu evolución.",
-  muscleUp: "Se nota el trabajo. Tu cuerpo está respondiendo. Estás construyendo algo real.",
-  lighterStronger: "Más ligero y más fuerte. Eso no es suerte, es disciplina.",
-  weightUpMuscleUp: "El número de la báscula no cuenta toda la historia. Estás ganando estructura.",
-  consistency: "Puede que el espejo tarde, pero tus hábitos ya cambiaron. Sigue.",
-  setback: "No voy a maquillarlo: este mes no avanzaste como podías. Pero aún estás dentro del sistema. Reinicia.",
-} as const;
 
 export function monthKey(isoDate: string): string {
   return isoDate.slice(0, 7);
@@ -43,37 +35,6 @@ function hadRecentConsistency(history: DailyLog[], date: string): boolean {
   return inMonth >= 3 || last14 >= 5;
 }
 
-export function generateAvatarFeedback(
-  previous: BodyCheckin | undefined,
-  weightDelta: number | undefined,
-  muscleDelta: number | undefined,
-  consistent: boolean,
-): string {
-  if (!previous) return AVATAR_FEEDBACK.first;
-
-  const w = weightDelta ?? 0;
-  const m = muscleDelta ?? 0;
-
-  if (muscleDelta !== undefined && m <= -0.3) return AVATAR_FEEDBACK.setback;
-  if (w >= 1.5 && (muscleDelta === undefined || m <= 0)) return AVATAR_FEEDBACK.setback;
-
-  if (muscleDelta !== undefined && m >= 0.3) {
-    if (w >= 0.3) return AVATAR_FEEDBACK.weightUpMuscleUp;
-    return AVATAR_FEEDBACK.muscleUp;
-  }
-
-  if (w <= -0.3 && (muscleDelta === undefined || m >= -0.2)) {
-    return AVATAR_FEEDBACK.lighterStronger;
-  }
-
-  if (Math.abs(w) < 0.5 && (muscleDelta === undefined || Math.abs(m) < 0.5) && consistent) {
-    return AVATAR_FEEDBACK.consistency;
-  }
-
-  if (consistent) return AVATAR_FEEDBACK.consistency;
-  return AVATAR_FEEDBACK.setback;
-}
-
 export function registerBodyCheckin(
   state: Pick<GameState, "bodyCheckins" | "history" | "affinity" | "inventory">,
   input: BodyCheckinInput,
@@ -94,7 +55,8 @@ export function registerBodyCheckin(
     muscleDelta = input.muscleMassValue - previous.muscleMassValue;
   }
 
-  const avatarFeedback = generateAvatarFeedback(
+  const avatarFeedback = bodyCheckinAvatarMessage(
+    state.affinity,
     previous,
     weightDelta,
     muscleDelta,
