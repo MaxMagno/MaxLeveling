@@ -1,5 +1,14 @@
 import type { ReactNode } from "react";
 
+/** Etiqueta de origen del mensaje; no debe partirse en varias líneas. */
+export function SystemLabel() {
+  return (
+    <span className="inline-flex shrink-0 items-center whitespace-nowrap text-neon font-display text-xs tracking-wider mt-0.5">
+      (sistema)
+    </span>
+  );
+}
+
 export function SystemPanel({
   title, eyebrow, children, className = "", neon = false,
 }: { title?: string; eyebrow?: string; children: ReactNode; className?: string; neon?: boolean }) {
@@ -19,9 +28,9 @@ export function SystemPanel({
 
 export function SystemMessage({ children }: { children: ReactNode }) {
   return (
-    <div className="panel panel-neon p-4 flex items-start gap-3 scanline">
-      <span className="text-neon font-display text-xs tracking-widest mt-0.5">[ SISTEMA ]</span>
-      <p className="text-sm text-foreground/90 leading-relaxed">{children}</p>
+    <div className="panel panel-neon p-4 flex items-start gap-3 scanline min-w-0">
+      <SystemLabel />
+      <div className="min-w-0 flex-1 text-sm text-foreground/90 leading-relaxed">{children}</div>
     </div>
   );
 }

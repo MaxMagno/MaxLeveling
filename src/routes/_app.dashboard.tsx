@@ -6,6 +6,7 @@ import { Badge } from "@/components/ml/Badge";
 import { ActiveEffectsBar } from "@/components/ml/ActiveEffectsBar";
 import { AvatarCard } from "@/components/ml/AvatarCard";
 import { useGame } from "@/lib/game/store";
+import { checkinMonthStatus } from "@/lib/game/bodyCheckin";
 import {
   PACT_LABEL, PACT_MULTIPLIER, PHASE_LABEL, avatarPhase,
   nextLevelXp, rankFor, XP_THRESHOLDS,
@@ -33,6 +34,7 @@ function Dashboard() {
   const xpNeeded = xpNext - xpPrev;
   const completedToday = !!state.todayLog?.completed;
   const restToday = !!state.todayLog?.restAuthorized;
+  const checkinStatus = checkinMonthStatus(state.bodyCheckins);
   const line = avatarLine(state.affinity, completedToday, state.streak, state.profile!.name);
   const mult = PACT_MULTIPLIER[state.pact];
 
@@ -157,12 +159,16 @@ function Dashboard() {
         <aside className="space-y-4 lg:sticky lg:top-20 h-fit order-2">
           <AvatarCard avatar={state.avatar!} affinity={state.affinity} quote={line} />
           <Link to="/checkin" className="panel p-4 hover:panel-neon transition block">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div>
-                <div className="system-eyebrow">Check-in</div>
-                <div className="font-display text-sm mt-1">Mensual</div>
+                <div className="system-eyebrow">Check-in mensual</div>
+                <div className="font-display text-sm mt-1">
+                  {checkinStatus === "completed" ? "Completado este mes" : "Pendiente este mes"}
+                </div>
               </div>
-              <Badge tone="muted">Próximamente</Badge>
+              <Badge tone={checkinStatus === "completed" ? "success" : "warning"}>
+                {checkinStatus === "completed" ? "✓ Hecho" : "Registrar"}
+              </Badge>
             </div>
           </Link>
         </aside>

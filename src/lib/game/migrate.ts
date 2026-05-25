@@ -34,7 +34,11 @@ export function migrateHydratedState(
     merged.exercises,
   );
 
-  return { ...merged, events };
+  return {
+    ...merged,
+    events,
+    bodyCheckins: Array.isArray(merged.bodyCheckins) ? merged.bodyCheckins : [],
+  };
 }
 
 export { DEFAULT_EVENT_IDS, hasValidEventSet };

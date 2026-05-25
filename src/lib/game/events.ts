@@ -1,3 +1,4 @@
+import { addInventoryItem } from "./items";
 import { ITEM_CATALOG } from "./mock";
 import type {
   DailyLog, EventCompletionNotice, GameEvent, GameState, InventorySlot, ItemId,
@@ -46,20 +47,6 @@ function progressForEvent(
     default:
       return 0;
   }
-}
-
-function addInventoryItem(
-  inventory: InventorySlot[],
-  itemId: ItemId,
-  amount = 1,
-): InventorySlot[] {
-  const idx = inventory.findIndex((s) => s.itemId === itemId);
-  if (idx >= 0) {
-    return inventory.map((s, i) =>
-      i === idx ? { ...s, quantity: s.quantity + amount } : s,
-    );
-  }
-  return [...inventory, { itemId, quantity: amount }];
 }
 
 export interface ApplyEventsResult {

@@ -4,14 +4,16 @@ import {
   applyMissionRewards, computeStreakAfterMission, todayRestUsed,
   useItem as executeUseItem,
 } from "./items";
+import { registerBodyCheckin as submitBodyCheckin } from "./bodyCheckin";
 import { migrateHydratedState } from "./migrate";
 import {
   DEFAULT_EFFECTS, DEFAULT_EVENTS, DEFAULT_INVENTORY,
 } from "./mock";
 import {
   DEFAULT_EXERCISES, PACT_MULTIPLIER, levelFromXp,
-  type AvatarProfile, type DailyLog, type GameState, type ItemId, type PactType,
-  type SubmitDailyResult, type UseItemResult, type UserProfile,
+  type AvatarProfile, type BodyCheckinInput, type DailyLog, type GameState, type ItemId,
+  type PactType, type RegisterBodyCheckinResult, type SubmitDailyResult, type UseItemResult,
+  type UserProfile,
 } from "./types";
 
 const KEY = "maxleveling:v1";
@@ -43,6 +45,7 @@ const initialState: GameState = {
   events: DEFAULT_EVENTS,
   inventory: DEFAULT_INVENTORY,
   effects: DEFAULT_EFFECTS,
+  bodyCheckins: [],
 };
 
 interface Ctx {
@@ -53,6 +56,7 @@ interface Ctx {
   submitDaily: (values: Record<string, number>) => SubmitDailyResult;
   useItem: (itemId: ItemId) => UseItemResult;
   useRestPass: () => UseItemResult;
+  registerBodyCheckin: (input: BodyCheckinInput) => RegisterBodyCheckinResult;
   reset: () => void;
 }
 
@@ -184,6 +188,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     useRestPass: () => {
       const today = todayKey();
       const { next, result } = executeUseItem(state, "rest_pass", today);
+      if (result.ok) {
+        setState((s) => ({ ...s, ...next }));
+      }
+      return result;
+    },
+    registerBodyCheckin: (input) => {
+      const today = todayKey();
+      const { next, ...result } = submitBodyCheckin(state, input, today);
       if (result.ok) {
         setState((s) => ({ ...s, ...next }));
       }

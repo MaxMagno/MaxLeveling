@@ -35,6 +35,20 @@ export function inventoryQty(inventory: InventorySlot[], itemId: ItemId): number
   return inventory.find((s) => s.itemId === itemId)?.quantity ?? 0;
 }
 
+export function addInventoryItem(
+  inventory: InventorySlot[],
+  itemId: ItemId,
+  amount = 1,
+): InventorySlot[] {
+  const idx = inventory.findIndex((s) => s.itemId === itemId);
+  if (idx >= 0) {
+    return inventory.map((s, i) =>
+      i === idx ? { ...s, quantity: s.quantity + amount } : s,
+    );
+  }
+  return [...inventory, { itemId, quantity: amount }];
+}
+
 export function consumeInventory(
   inventory: InventorySlot[],
   itemId: ItemId,

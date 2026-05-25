@@ -112,6 +112,33 @@ export interface ActiveEffect {
   activatedAt: string; // YYYY-MM-DD
 }
 
+export interface BodyCheckin {
+  id: string;
+  date: string; // YYYY-MM-DD
+  weightKg: number;
+  muscleMassValue: number;
+  muscleMassUnit: "kg" | "percent";
+  userComment?: string;
+  avatarFeedback: string;
+  weightDelta?: number;
+  muscleDelta?: number;
+  rewardGranted?: boolean;
+}
+
+export interface BodyCheckinInput {
+  weightKg: number;
+  muscleMassValue: number;
+  muscleMassUnit: "kg" | "percent";
+  userComment?: string;
+}
+
+export interface RegisterBodyCheckinResult {
+  ok: boolean;
+  message: string;
+  checkin?: BodyCheckin;
+  rewardGranted?: boolean;
+}
+
 export interface GameState {
   profile: UserProfile | null;
   avatar: AvatarProfile | null;
@@ -129,6 +156,7 @@ export interface GameState {
   events: GameEvent[];
   inventory: InventorySlot[];
   effects: ActiveEffect[];
+  bodyCheckins: BodyCheckin[];
 }
 
 export const ITEM_RARITY_LABEL: Record<ItemRarity, string> = {
