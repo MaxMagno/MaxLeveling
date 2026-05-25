@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { applyEventsAfterDaily } from "./events";
 import {
   DEFAULT_EFFECTS, DEFAULT_INVENTORY, MOCK_EVENTS,
 } from "./mock";
@@ -106,7 +107,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
         const streak = completed ? s.streak + 1 : 0;
         const bestStreak = Math.max(s.bestStreak, streak);
         const affinity = Math.max(0, Math.min(100, s.affinity + affGain));
-        return { ...s, history, xp, level, streak, bestStreak, affinity, todayLog: log };
+        const { events, inventory } = applyEventsAfterDaily(s, history);
+        return {
+          ...s,
+          history,
+          xp,
+          level,
+          streak,
+          bestStreak,
+          affinity,
+          todayLog: log,
+          events,
+          inventory,
+        };
       });
       return log;
     },
