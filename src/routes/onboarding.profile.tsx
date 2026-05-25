@@ -4,7 +4,9 @@ import { SystemPanel, SystemMessage } from "@/components/ml/SystemPanel";
 import { Field, Select, TextInput } from "@/components/ml/Field";
 import { NeonButton } from "@/components/ml/NeonButton";
 import { useGame } from "@/lib/game/store";
+import { OnboardingProgress } from "@/components/ml/OnboardingProgress";
 import type { FitnessLevel, MainGoal, UserGender } from "@/lib/game/types";
+import { onboardingStepLabel } from "@/lib/game/types";
 
 export const Route = createFileRoute("/onboarding/profile")({ component: ProfileStep });
 
@@ -38,7 +40,8 @@ function ProfileStep() {
     <div className="min-h-screen px-4 py-8 sm:py-14 relative z-10">
       <div className="max-w-2xl mx-auto space-y-6">
         <header className="text-center space-y-2">
-          <div className="chip mx-auto">Inicialización · Paso 1 de 2</div>
+          <div className="chip mx-auto">{onboardingStepLabel(1)}</div>
+          <OnboardingProgress step={1} />
           <h1 className="font-display text-3xl sm:text-4xl">Crear perfil de jugador</h1>
           <p className="text-sm text-muted-foreground">
             Estos datos calibran tu esfuerzo, seguridad y progresión. No definen lo que puedes lograr.

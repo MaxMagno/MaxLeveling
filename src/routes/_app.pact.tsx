@@ -3,14 +3,14 @@ import { SystemMessage } from "@/components/ml/SystemPanel";
 import { NeonButton } from "@/components/ml/NeonButton";
 import { Badge } from "@/components/ml/Badge";
 import { useGame } from "@/lib/game/store";
-import type { PactType } from "@/lib/game/types";
+import { PACT_LABEL, recommendWeeklyPact, type PactType } from "@/lib/game/types";
 
 export const Route = createFileRoute("/_app/pact")({ component: Pact });
 
 const OPTIONS: { id: PactType; code: string; title: string; mult: number; short: string; long: string }[] = [
-  { id: "progresion", code: "A", title: "Aceptar progresión", mult: 1.10,
-    short: "Subes el listón.",
-    long: "Aceptas la subida saludable que recomienda el sistema. Máxima XP y afinidad." },
+  { id: "progresion", code: "A", title: "Progresión recomendada", mult: 1.10,
+    short: "Avance saludable.",
+    long: "El sistema recomienda avanzar de forma saludable esta semana. Máxima XP y afinidad." },
   { id: "mantener",   code: "B", title: "Mantener pacto", mult: 1.00,
     short: "Misma carga.",
     long: "Mantienes los mismos objetivos. Estable, sin penalización." },
@@ -26,7 +26,7 @@ function Pact() {
   const { state, setPact } = useGame();
   const last7 = state.history.slice(-7);
   const done = last7.filter((h) => h.completed).length;
-  const rec: PactType = done >= 5 ? "progresion" : done >= 3 ? "mantener" : done > 0 ? "reducir" : "descarga";
+  const rec = recommendWeeklyPact(state.history);
   const recOption = OPTIONS.find((o) => o.id === rec)!;
 
   return (
@@ -40,7 +40,8 @@ function Pact() {
       </div>
 
       <SystemMessage>
-        El sistema recomienda <span className="text-neon font-display">{recOption.title}</span> según tu progresión saludable. Puedes aceptarla o elegir otro pacto.
+        El sistema recomienda <span className="text-neon font-display">{PACT_LABEL[rec]}</span>
+        {" "}(x{recOption.mult.toFixed(2)}) según tu progresión saludable. Puedes aceptarla o elegir otro pacto.
       </SystemMessage>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

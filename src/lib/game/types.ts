@@ -133,6 +133,28 @@ export const PACT_LABEL: Record<PactType, string> = {
   descarga: "Semana de descarga",
 };
 
+/** Pacto recomendado en onboarding o sin historial semanal. */
+export const RECOMMENDED_PACT_INITIAL: PactType = "progresion";
+
+export const ONBOARDING_TOTAL_STEPS = 3;
+
+export function onboardingStepLabel(step: 1 | 2 | 3): string {
+  return `Inicialización · Paso ${step} de ${ONBOARDING_TOTAL_STEPS}`;
+}
+
+/** Recomienda pacto según la semana reciente; descarga solo con fatiga/fallos altos. */
+export function recommendWeeklyPact(history: DailyLog[]): PactType {
+  const last7 = history.slice(-7);
+  const done = last7.filter((h) => h.completed).length;
+  const failed = last7.filter((h) => h.failed).length;
+
+  if (failed >= 3) return "descarga";
+  if (done >= 5) return "progresion";
+  if (done >= 3) return "mantener";
+  if (done > 0) return "reducir";
+  return RECOMMENDED_PACT_INITIAL;
+}
+
 export const RANKS: { min: number; name: string }[] = [
   { min: 1, name: "Civil" },
   { min: 2, name: "Aspirante" },

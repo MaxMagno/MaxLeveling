@@ -5,7 +5,9 @@ import { Field, Select, TextInput } from "@/components/ml/Field";
 import { NeonButton } from "@/components/ml/NeonButton";
 import { AvatarCard } from "@/components/ml/AvatarCard";
 import { useGame } from "@/lib/game/store";
+import { OnboardingProgress } from "@/components/ml/OnboardingProgress";
 import type { AvatarStyle, EyeColor, HairColor, HairStyle, SkinTone } from "@/lib/game/types";
+import { onboardingStepLabel } from "@/lib/game/types";
 
 export const Route = createFileRoute("/onboarding/avatar")({ component: AvatarStep });
 
@@ -31,7 +33,8 @@ function AvatarStep() {
     <div className="min-h-screen px-4 py-8 sm:py-14 relative z-10">
       <div className="max-w-5xl mx-auto space-y-6">
         <header className="text-center space-y-2">
-          <div className="chip mx-auto">Inicialización · Paso 2 de 2</div>
+          <div className="chip mx-auto">{onboardingStepLabel(2)}</div>
+          <OnboardingProgress step={2} />
           <h1 className="font-display text-3xl sm:text-4xl">Crear Administrador/a del Sistema</h1>
           <p className="text-sm text-muted-foreground">
             Antes de iniciar tu progreso, configura a tu Administrador/a del Sistema.
