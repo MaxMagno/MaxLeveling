@@ -15,13 +15,15 @@ function AvatarStep() {
   const { state, setAvatar } = useGame();
   const nav = useNavigate();
   const [a, setA] = useState({
-    name: "Aria", style: "femenino" as AvatarStyle,
-    skinTone: "media" as SkinTone, hairColor: "azul_oscuro" as HairColor,
-    hairStyle: "largo_liso" as HairStyle, eyeColor: "azul" as EyeColor,
+    name: "Aria",
+    style: "femenino" as AvatarStyle,
+    skinTone: "media" as SkinTone,
+    hairColor: "azul_oscuro" as HairColor,
+    hairStyle: "largo_liso" as HairStyle,
+    eyeColor: "azul" as EyeColor,
   });
   if (!state.profile) return <Navigate to="/onboarding/profile" />;
-  const upd = <K extends keyof typeof a>(k: K, v: (typeof a)[K]) =>
-    setA((s) => ({ ...s, [k]: v }));
+  const upd = <K extends keyof typeof a>(k: K, v: (typeof a)[K]) => setA((s) => ({ ...s, [k]: v }));
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +44,8 @@ function AvatarStep() {
         </header>
 
         <SystemMessage>
-          La afinidad evoluciona la vestimenta, pose y cercanía. Los rasgos elegidos se mantienen entre fases.
+          La afinidad evoluciona la vestimenta, pose y cercanía. Los rasgos elegidos se mantienen
+          entre fases.
         </SystemMessage>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
@@ -50,11 +53,18 @@ function AvatarStep() {
             <form onSubmit={submit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
                 <Field label="Nombre del avatar">
-                  <TextInput required value={a.name} onChange={(e) => upd("name", e.target.value)} />
+                  <TextInput
+                    required
+                    value={a.name}
+                    onChange={(e) => upd("name", e.target.value)}
+                  />
                 </Field>
               </div>
               <Field label="Sexo / estilo">
-                <Select value={a.style} onChange={(e) => upd("style", e.target.value as AvatarStyle)}>
+                <Select
+                  value={a.style}
+                  onChange={(e) => upd("style", e.target.value as AvatarStyle)}
+                >
                   <option value="femenino">Femenino</option>
                   <option value="masculino">Masculino</option>
                   <option value="androgeno">Andrógeno</option>
@@ -62,7 +72,10 @@ function AvatarStep() {
                 </Select>
               </Field>
               <Field label="Tono de piel">
-                <Select value={a.skinTone} onChange={(e) => upd("skinTone", e.target.value as SkinTone)}>
+                <Select
+                  value={a.skinTone}
+                  onChange={(e) => upd("skinTone", e.target.value as SkinTone)}
+                >
                   <option value="muy_clara">Muy clara</option>
                   <option value="clara">Clara</option>
                   <option value="media">Media</option>
@@ -71,7 +84,10 @@ function AvatarStep() {
                 </Select>
               </Field>
               <Field label="Color de pelo">
-                <Select value={a.hairColor} onChange={(e) => upd("hairColor", e.target.value as HairColor)}>
+                <Select
+                  value={a.hairColor}
+                  onChange={(e) => upd("hairColor", e.target.value as HairColor)}
+                >
                   <option value="negro">Negro</option>
                   <option value="castano_oscuro">Castaño oscuro</option>
                   <option value="castano_claro">Castaño claro</option>
@@ -83,7 +99,10 @@ function AvatarStep() {
                 </Select>
               </Field>
               <Field label="Corte de pelo">
-                <Select value={a.hairStyle} onChange={(e) => upd("hairStyle", e.target.value as HairStyle)}>
+                <Select
+                  value={a.hairStyle}
+                  onChange={(e) => upd("hairStyle", e.target.value as HairStyle)}
+                >
                   <option value="largo_liso">Largo liso</option>
                   <option value="largo_ondulado">Largo ondulado</option>
                   <option value="media_melena">Media melena</option>
@@ -96,7 +115,10 @@ function AvatarStep() {
                 </Select>
               </Field>
               <Field label="Color de ojos">
-                <Select value={a.eyeColor} onChange={(e) => upd("eyeColor", e.target.value as EyeColor)}>
+                <Select
+                  value={a.eyeColor}
+                  onChange={(e) => upd("eyeColor", e.target.value as EyeColor)}
+                >
                   <option value="marron">Marrón</option>
                   <option value="azul">Azul</option>
                   <option value="verde">Verde</option>
@@ -107,11 +129,16 @@ function AvatarStep() {
               </Field>
 
               <div className="sm:col-span-2 flex items-center justify-between pt-3">
-                <button type="button" onClick={() => nav({ to: "/onboarding/profile" })}
-                  className="text-xs uppercase tracking-widest text-muted-foreground hover:text-primary">
+                <button
+                  type="button"
+                  onClick={() => nav({ to: "/onboarding/profile" })}
+                  className="text-xs uppercase tracking-widest text-muted-foreground hover:text-primary"
+                >
                   ← Volver
                 </button>
-                <NeonButton type="submit" variant="violet">⚡ Activar sistema</NeonButton>
+                <NeonButton type="submit" variant="violet">
+                  ⚡ Activar sistema
+                </NeonButton>
               </div>
             </form>
           </SystemPanel>

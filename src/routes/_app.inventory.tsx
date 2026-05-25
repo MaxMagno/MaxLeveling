@@ -11,12 +11,7 @@ import type { ItemId } from "@/lib/game/types";
 
 export const Route = createFileRoute("/_app/inventory")({ component: Inventory });
 
-const ITEM_ORDER: ItemId[] = [
-  "rest_pass",
-  "streak_shield",
-  "xp_bonus_50",
-  "affinity_mult",
-];
+const ITEM_ORDER: ItemId[] = ["rest_pass", "streak_shield", "xp_bonus_50", "affinity_mult"];
 
 function Inventory() {
   const { state, useItem } = useGame();
@@ -41,7 +36,8 @@ function Inventory() {
   return (
     <div className="space-y-6">
       <SystemMessage>
-        Inventario del cazador. Usa los objetos para preparar la próxima misión o autorizar descanso.
+        Inventario del cazador. Usa los objetos para preparar la próxima misión o autorizar
+        descanso.
       </SystemMessage>
 
       {feedback && <SystemMessage>{feedback}</SystemMessage>}

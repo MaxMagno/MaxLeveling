@@ -1,18 +1,27 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { applyEventsAfterDaily } from "./events";
 import {
-  applyMissionRewards, computeStreakAfterMission, todayRestUsed,
+  applyMissionRewards,
+  computeStreakAfterMission,
+  todayRestUsed,
   useItem as executeUseItem,
 } from "./items";
 import { registerBodyCheckin as submitBodyCheckin } from "./bodyCheckin";
 import { migrateHydratedState } from "./migrate";
+import { DEFAULT_EFFECTS, DEFAULT_EVENTS, DEFAULT_INVENTORY } from "./mock";
 import {
-  DEFAULT_EFFECTS, DEFAULT_EVENTS, DEFAULT_INVENTORY,
-} from "./mock";
-import {
-  DEFAULT_EXERCISES, PACT_MULTIPLIER, levelFromXp,
-  type AvatarProfile, type BodyCheckinInput, type DailyLog, type GameState, type ItemId,
-  type PactType, type RegisterBodyCheckinResult, type SubmitDailyResult, type UseItemResult,
+  DEFAULT_EXERCISES,
+  PACT_MULTIPLIER,
+  levelFromXp,
+  type AvatarProfile,
+  type BodyCheckinInput,
+  type DailyLog,
+  type GameState,
+  type ItemId,
+  type PactType,
+  type RegisterBodyCheckinResult,
+  type SubmitDailyResult,
+  type UseItemResult,
   type UserProfile,
 } from "./types";
 
@@ -72,7 +81,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (raw) {
         setState(migrateHydratedState(JSON.parse(raw) as Partial<GameState>, initialState));
       }
-    } catch {/* noop */}
+    } catch {
+      /* noop */
+    }
     setHydrated(true);
   }, []);
 
@@ -80,132 +91,132 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (hydrated) localStorage.setItem(KEY, JSON.stringify(state));
   }, [state, hydrated]);
 
-  const api = useMemo<Ctx>(() => ({
-    state,
-    setProfile: (p) => setState((s) => ({ ...s, profile: p })),
-    setAvatar: (a) => setState((s) => ({ ...s, avatar: a })),
-    setPact: (p) => setState((s) => ({ ...s, pact: p, pactConfigured: true, weekStartIso: mondayIso() })),
-    submitDaily: (values) => {
-      const today = todayKey();
-      if (todayRestUsed(state.history, today) || state.todayLog?.restAuthorized) {
-        const blocked: DailyLog = {
+  const api = useMemo<Ctx>(
+    () => ({
+      state,
+      setProfile: (p) => setState((s) => ({ ...s, profile: p })),
+      setAvatar: (a) => setState((s) => ({ ...s, avatar: a })),
+      setPact: (p) =>
+        setState((s) => ({ ...s, pact: p, pactConfigured: true, weekStartIso: mondayIso() })),
+      submitDaily: (values) => {
+        const today = todayKey();
+        if (todayRestUsed(state.history, today) || state.todayLog?.restAuthorized) {
+          const blocked: DailyLog = {
+            date: today,
+            values: {},
+            completed: false,
+            failed: false,
+            xpEarned: 0,
+            affinityEarned: 0,
+            restAuthorized: true,
+          };
+          return {
+            log: state.todayLog ?? blocked,
+            eventCompletions: [],
+            itemMessages: ["Hoy es descanso autorizado. No puedes registrar misión."],
+          };
+        }
+
+        const mult = PACT_MULTIPLIER[state.pact];
+        const ratios = state.exercises.map((ex) => {
+          const v = Number(values[ex.id] ?? 0);
+          return v / ex.target;
+        });
+        const avg = ratios.reduce((a, b) => a + b, 0) / ratios.length;
+        const completed = ratios.every((r) => r >= 1);
+
+        let bonus = 0;
+        if (completed) {
+          const extra = avg - 1;
+          if (extra >= 1) bonus = 150;
+          else if (extra >= 0.5) bonus = 60;
+          else if (extra >= 0.25) bonus = 25;
+        }
+        const baseXp = completed ? Math.round(100 * mult + bonus) : 0;
+        const baseAff = completed ? 5 : -3;
+
+        const rewards = applyMissionRewards(
+          completed,
+          baseXp,
+          baseAff,
+          state.streak,
+          state.affinity,
+          state.effects,
+        );
+
+        const log: DailyLog = {
           date: today,
-          values: {},
-          completed: false,
-          failed: false,
-          xpEarned: 0,
-          affinityEarned: 0,
-          restAuthorized: true,
+          values,
+          completed,
+          failed: !completed,
+          xpEarned: rewards.xpEarned,
+          affinityEarned: rewards.affinityEarned,
         };
-        return {
-          log: state.todayLog ?? blocked,
-          eventCompletions: [],
-          itemMessages: ["Hoy es descanso autorizado. No puedes registrar misión."],
-        };
-      }
 
-      const mult = PACT_MULTIPLIER[state.pact];
-      const ratios = state.exercises.map((ex) => {
-        const v = Number(values[ex.id] ?? 0);
-        return v / ex.target;
-      });
-      const avg = ratios.reduce((a, b) => a + b, 0) / ratios.length;
-      const completed = ratios.every((r) => r >= 1);
-
-      let bonus = 0;
-      if (completed) {
-        const extra = avg - 1;
-        if (extra >= 1) bonus = 150;
-        else if (extra >= 0.5) bonus = 60;
-        else if (extra >= 0.25) bonus = 25;
-      }
-      const baseXp = completed ? Math.round(100 * mult + bonus) : 0;
-      const baseAff = completed ? 5 : -3;
-
-      const rewards = applyMissionRewards(
-        completed,
-        baseXp,
-        baseAff,
-        state.streak,
-        state.affinity,
-        state.effects,
-      );
-
-      const log: DailyLog = {
-        date: today,
-        values,
-        completed,
-        failed: !completed,
-        xpEarned: rewards.xpEarned,
-        affinityEarned: rewards.affinityEarned,
-      };
-
-      const history = [...state.history.filter((h) => h.date !== log.date), log];
-      const { events, inventory, completions } = applyEventsAfterDaily(
-        { ...state, effects: rewards.effects },
-        history,
-      );
-
-      const streak = computeStreakAfterMission(
-        completed,
-        state.streak,
-        rewards.streakShieldUsed,
-      );
-
-      setState((s) => {
-        const xp = Math.max(0, s.xp + log.xpEarned);
-        const level = levelFromXp(xp);
-        const bestStreak = Math.max(s.bestStreak, streak);
-        const affinity = Math.max(0, Math.min(100, s.affinity + log.affinityEarned));
-        return {
-          ...s,
+        const history = [...state.history.filter((h) => h.date !== log.date), log];
+        const { events, inventory, completions } = applyEventsAfterDaily(
+          { ...state, effects: rewards.effects },
           history,
-          xp,
-          level,
-          streak,
-          bestStreak,
-          affinity,
-          todayLog: log,
-          events,
-          inventory,
-          effects: rewards.effects,
+        );
+
+        const streak = computeStreakAfterMission(completed, state.streak, rewards.streakShieldUsed);
+
+        setState((s) => {
+          const xp = Math.max(0, s.xp + log.xpEarned);
+          const level = levelFromXp(xp);
+          const bestStreak = Math.max(s.bestStreak, streak);
+          const affinity = Math.max(0, Math.min(100, s.affinity + log.affinityEarned));
+          return {
+            ...s,
+            history,
+            xp,
+            level,
+            streak,
+            bestStreak,
+            affinity,
+            todayLog: log,
+            events,
+            inventory,
+            effects: rewards.effects,
+          };
+        });
+        return {
+          log,
+          eventCompletions: completions,
+          itemMessages: rewards.messages,
         };
-      });
-      return {
-        log,
-        eventCompletions: completions,
-        itemMessages: rewards.messages,
-      };
-    },
-    useItem: (itemId) => {
-      const today = todayKey();
-      const { next, result } = executeUseItem(state, itemId, today);
-      if (result.ok) {
-        setState((s) => ({ ...s, ...next }));
-      }
-      return result;
-    },
-    useRestPass: () => {
-      const today = todayKey();
-      const { next, result } = executeUseItem(state, "rest_pass", today);
-      if (result.ok) {
-        setState((s) => ({ ...s, ...next }));
-      }
-      return result;
-    },
-    registerBodyCheckin: (input) => {
-      const today = todayKey();
-      const { next, ...result } = submitBodyCheckin(state, input, today);
-      if (result.ok) {
-        setState((s) => ({ ...s, ...next }));
-      }
-      return result;
-    },
-    reset: () => {
-      localStorage.removeItem(KEY);
-      setState(initialState);
-    },
-  }), [state]);
+      },
+      useItem: (itemId) => {
+        const today = todayKey();
+        const { next, result } = executeUseItem(state, itemId, today);
+        if (result.ok) {
+          setState((s) => ({ ...s, ...next }));
+        }
+        return result;
+      },
+      useRestPass: () => {
+        const today = todayKey();
+        const { next, result } = executeUseItem(state, "rest_pass", today);
+        if (result.ok) {
+          setState((s) => ({ ...s, ...next }));
+        }
+        return result;
+      },
+      registerBodyCheckin: (input) => {
+        const today = todayKey();
+        const { next, ...result } = submitBodyCheckin(state, input, today);
+        if (result.ok) {
+          setState((s) => ({ ...s, ...next }));
+        }
+        return result;
+      },
+      reset: () => {
+        localStorage.removeItem(KEY);
+        setState(initialState);
+      },
+    }),
+    [state],
+  );
 
   // sync todayLog desde history al hidratar
   useEffect(() => {

@@ -10,19 +10,46 @@ import { useState } from "react";
 
 export const Route = createFileRoute("/_app/pact")({ component: Pact });
 
-const OPTIONS: { id: PactType; code: string; title: string; mult: number; short: string; long: string }[] = [
-  { id: "progresion", code: "A", title: "Progresión recomendada", mult: 1.10,
+const OPTIONS: {
+  id: PactType;
+  code: string;
+  title: string;
+  mult: number;
+  short: string;
+  long: string;
+}[] = [
+  {
+    id: "progresion",
+    code: "A",
+    title: "Progresión recomendada",
+    mult: 1.1,
     short: "Avance saludable.",
-    long: "El sistema recomienda avanzar de forma saludable esta semana. Máxima XP y afinidad." },
-  { id: "mantener",   code: "B", title: "Mantener pacto", mult: 1.00,
+    long: "El sistema recomienda avanzar de forma saludable esta semana. Máxima XP y afinidad.",
+  },
+  {
+    id: "mantener",
+    code: "B",
+    title: "Mantener pacto",
+    mult: 1.0,
     short: "Misma carga.",
-    long: "Mantienes los mismos objetivos. Estable, sin penalización." },
-  { id: "descarga",   code: "D", title: "Semana de descarga", mult: 0.90,
+    long: "Mantienes los mismos objetivos. Estable, sin penalización.",
+  },
+  {
+    id: "descarga",
+    code: "D",
+    title: "Semana de descarga",
+    mult: 0.9,
     short: "Recuperación autorizada.",
-    long: "Bajada saludable por fatiga acumulada. Ligera reducción de XP." },
-  { id: "reducir",    code: "C", title: "Reducir pacto", mult: 0.70,
+    long: "Bajada saludable por fatiga acumulada. Ligera reducción de XP.",
+  },
+  {
+    id: "reducir",
+    code: "C",
+    title: "Reducir pacto",
+    mult: 0.7,
     short: "Bajada voluntaria.",
-    long: "Bajas objetivos sin que el sistema lo recomiende. XP reducido." },
+    long: "Bajas objetivos sin que el sistema lo recomiende. XP reducido.",
+  },
 ];
 
 function Pact() {
@@ -63,8 +90,9 @@ function Pact() {
       </div>
 
       <SystemMessage>
-        El sistema recomienda <span className="text-neon font-display">{PACT_LABEL[rec]}</span>
-        {" "}(x{recOption.mult.toFixed(2)}) según tu progresión saludable. Puedes aceptarla o elegir otro pacto.
+        El sistema recomienda <span className="text-neon font-display">{PACT_LABEL[rec]}</span> (x
+        {recOption.mult.toFixed(2)}) según tu progresión saludable. Puedes aceptarla o elegir otro
+        pacto.
       </SystemMessage>
 
       <SystemPanel eyebrow="Administrador/a del sistema" title="Transmisión" neon>
@@ -76,24 +104,38 @@ function Pact() {
           const active = state.pact === o.id;
           const recommended = o.id === rec;
           const tone =
-            o.mult > 1 ? "var(--success)"
-          : o.mult === 1 ? "var(--primary)"
-          : o.mult >= 0.9 ? "var(--warning)"
-          : "var(--destructive)";
+            o.mult > 1
+              ? "var(--success)"
+              : o.mult === 1
+                ? "var(--primary)"
+                : o.mult >= 0.9
+                  ? "var(--warning)"
+                  : "var(--destructive)";
           return (
-            <button key={o.id} type="button" onClick={() => applyPact(o.id)}
-              className={`text-left panel p-5 transition group relative ${active ? "panel-neon" : ""} ${recommended ? "ring-1 ring-[color:var(--success)]/40" : ""}`}>
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => applyPact(o.id)}
+              className={`text-left panel p-5 transition group relative ${active ? "panel-neon" : ""} ${recommended ? "ring-1 ring-[color:var(--success)]/40" : ""}`}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Opción {o.code}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Opción {o.code}
+                  </div>
                   <div className="font-display text-base mt-1">{o.title}</div>
                   <div className="text-xs text-muted-foreground mt-0.5">{o.short}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-display text-2xl leading-none" style={{ color: tone, textShadow: `0 0 14px ${tone}` }}>
+                  <div
+                    className="font-display text-2xl leading-none"
+                    style={{ color: tone, textShadow: `0 0 14px ${tone}` }}
+                  >
                     x{o.mult.toFixed(2)}
                   </div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Multiplicador</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
+                    Multiplicador
+                  </div>
                 </div>
               </div>
 

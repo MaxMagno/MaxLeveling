@@ -9,8 +9,13 @@ import { useGame } from "@/lib/game/store";
 import { checkinMonthStatus } from "@/lib/game/bodyCheckin";
 import { getAvatarMessage, resolveDashboardAction } from "@/lib/game/avatarMessages";
 import {
-  PACT_LABEL, PACT_MULTIPLIER, PHASE_LABEL, avatarPhase,
-  nextLevelXp, rankFor, XP_THRESHOLDS,
+  PACT_LABEL,
+  PACT_MULTIPLIER,
+  PHASE_LABEL,
+  avatarPhase,
+  nextLevelXp,
+  rankFor,
+  XP_THRESHOLDS,
 } from "@/lib/game/types";
 
 export const Route = createFileRoute("/_app/dashboard")({ component: Dashboard });
@@ -49,7 +54,11 @@ function Dashboard() {
         <div className="flex flex-wrap gap-1.5">
           <Badge tone="success">● System online</Badge>
           <Badge tone={restToday ? "violet" : completedToday ? "success" : "warning"}>
-            {restToday ? "Descanso autorizado" : completedToday ? "Misión completada" : "Misión activa"}
+            {restToday
+              ? "Descanso autorizado"
+              : completedToday
+                ? "Misión completada"
+                : "Misión activa"}
           </Badge>
           <Badge tone="violet">Pacto x{mult}</Badge>
         </div>
@@ -59,7 +68,6 @@ function Dashboard() {
       {/* Grid principal: en móvil quest primero, avatar después */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5 sm:gap-6">
         <div className="space-y-5 sm:space-y-6 order-1">
-
           {/* DAILY QUEST – bloque hero */}
           <section className="panel panel-neon p-5 sm:p-6 relative overflow-hidden">
             <div
@@ -79,7 +87,8 @@ function Dashboard() {
                 Misión de hoy
               </h2>
               <p className="text-xs text-muted-foreground mt-1">
-                {state.exercises.length} ejercicios · multiplicador semanal x{mult} ({PACT_LABEL[state.pact]})
+                {state.exercises.length} ejercicios · multiplicador semanal x{mult} (
+                {PACT_LABEL[state.pact]})
               </p>
 
               <div className="divider-neon my-4" />
@@ -87,10 +96,17 @@ function Dashboard() {
               {completedToday ? (
                 <div className="space-y-3">
                   <p className="text-sm">
-                    Ganaste <span className="text-neon font-display">+{state.todayLog!.xpEarned} XP</span> y
-                    <span className="text-violet font-display"> +{state.todayLog!.affinityEarned} afinidad</span>.
+                    Ganaste{" "}
+                    <span className="text-neon font-display">+{state.todayLog!.xpEarned} XP</span> y
+                    <span className="text-violet font-display">
+                      {" "}
+                      +{state.todayLog!.affinityEarned} afinidad
+                    </span>
+                    .
                   </p>
-                  <Link to="/quest"><NeonButton variant="ghost">Ver detalle de la misión</NeonButton></Link>
+                  <Link to="/quest">
+                    <NeonButton variant="ghost">Ver detalle de la misión</NeonButton>
+                  </Link>
                 </div>
               ) : (
                 <>
@@ -98,11 +114,15 @@ function Dashboard() {
                     {state.exercises.map((e) => (
                       <li key={e.id} className="panel p-3 flex items-center justify-between">
                         <span className="text-sm text-foreground/90">{e.name}</span>
-                        <span className="text-xs font-display text-neon">{e.target} {e.unit}</span>
+                        <span className="text-xs font-display text-neon">
+                          {e.target} {e.unit}
+                        </span>
                       </li>
                     ))}
                   </ul>
-                  <Link to="/quest"><NeonButton className="w-full sm:w-auto">⚔ Iniciar misión</NeonButton></Link>
+                  <Link to="/quest">
+                    <NeonButton className="w-full sm:w-auto">⚔ Iniciar misión</NeonButton>
+                  </Link>
                 </>
               )}
             </div>
@@ -130,7 +150,9 @@ function Dashboard() {
           <section className="panel p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="system-eyebrow">Affinity Level</div>
-              <Badge tone="violet">Fase {phase} · {PHASE_LABEL[phase]}</Badge>
+              <Badge tone="violet">
+                Fase {phase} · {PHASE_LABEL[phase]}
+              </Badge>
             </div>
             <XPBar value={state.affinity} max={100} tone="violet" />
             <p className="text-[11px] text-muted-foreground mt-2">
@@ -145,8 +167,20 @@ function Dashboard() {
               <div className="font-display text-base mt-2">{PACT_LABEL[state.pact]}</div>
               <div className="text-xs text-muted-foreground mt-1">Multiplicador x{mult}</div>
             </Link>
-            <StubCard to="/inventory" eyebrow="Inventario" title="Items" hint="Pase de descanso, escudo…" soon />
-            <StubCard to="/events" eyebrow="Eventos" title="Activos" hint="Misiones semanales" soon />
+            <StubCard
+              to="/inventory"
+              eyebrow="Inventario"
+              title="Items"
+              hint="Pase de descanso, escudo…"
+              soon
+            />
+            <StubCard
+              to="/events"
+              eyebrow="Eventos"
+              title="Activos"
+              hint="Misiones semanales"
+              soon
+            />
           </section>
         </div>
 
@@ -172,8 +206,19 @@ function Dashboard() {
   );
 }
 
-function StubCard({ to, eyebrow, title, hint, soon = false }:
-{ to: string; eyebrow: string; title: string; hint: string; soon?: boolean }) {
+function StubCard({
+  to,
+  eyebrow,
+  title,
+  hint,
+  soon = false,
+}: {
+  to: string;
+  eyebrow: string;
+  title: string;
+  hint: string;
+  soon?: boolean;
+}) {
   return (
     <Link to={to} className="panel p-4 hover:panel-neon transition block">
       <div className="flex items-center justify-between">

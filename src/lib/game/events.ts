@@ -1,7 +1,12 @@
 import { addInventoryItem } from "./items";
 import { ITEM_CATALOG } from "./mock";
 import type {
-  DailyLog, EventCompletionNotice, GameEvent, GameState, InventorySlot, ItemId,
+  DailyLog,
+  EventCompletionNotice,
+  GameEvent,
+  GameState,
+  InventorySlot,
+  ItemId,
 } from "./types";
 
 export const EVENT_IDS = {
@@ -21,8 +26,7 @@ export const DEFAULT_EVENT_IDS: readonly string[] = [
 export function hasValidEventSet(events: GameEvent[] | undefined): boolean {
   if (!events?.length) return false;
   const ids = new Set(events.map((e) => e.id));
-  return DEFAULT_EVENT_IDS.length === ids.size
-    && DEFAULT_EVENT_IDS.every((id) => ids.has(id));
+  return DEFAULT_EVENT_IDS.length === ids.size && DEFAULT_EVENT_IDS.every((id) => ids.has(id));
 }
 
 function weekLogs(history: DailyLog[], weekStartIso: string): DailyLog[] {

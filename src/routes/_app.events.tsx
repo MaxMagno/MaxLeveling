@@ -26,7 +26,10 @@ function Events() {
       <SystemMessage>
         Eventos semanales activos. El progreso se actualiza al registrar tu misión diaria.
         {activeCount > 0 && (
-          <> · <span className="text-neon">{activeCount} en curso</span></>
+          <>
+            {" "}
+            · <span className="text-neon">{activeCount} en curso</span>
+          </>
         )}
       </SystemMessage>
       <SystemPanel eyebrow="Administrador/a del sistema" title="Transmisión" neon>
@@ -37,11 +40,7 @@ function Events() {
           const pct = Math.round((e.progress / e.target) * 100);
           const done = e.status === "completed";
           return (
-            <SystemPanel
-              key={e.id}
-              eyebrow={done ? "Completado" : "Activo"}
-              title={e.name}
-            >
+            <SystemPanel key={e.id} eyebrow={done ? "Completado" : "Activo"} title={e.name}>
               <p className="text-sm text-muted-foreground mb-3">{e.description}</p>
               <div className="h-2 rounded-full bg-input/60 overflow-hidden mb-2">
                 <div

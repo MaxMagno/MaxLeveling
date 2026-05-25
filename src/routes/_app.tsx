@@ -29,10 +29,14 @@ function AppShell() {
             {NAV.map((n) => {
               const active = loc.pathname.startsWith(n.to);
               return (
-                <Link key={n.to} to={n.to}
+                <Link
+                  key={n.to}
+                  to={n.to}
                   className={`px-3 py-1.5 rounded-md text-xs uppercase tracking-widest transition
-                    ${active ? "text-primary bg-primary/10 border border-primary/40" : "text-muted-foreground hover:text-primary"}`}>
-                  <span className="mr-1">{n.icon}</span>{n.label}
+                    ${active ? "text-primary bg-primary/10 border border-primary/40" : "text-muted-foreground hover:text-primary"}`}
+                >
+                  <span className="mr-1">{n.icon}</span>
+                  {n.label}
                 </Link>
               );
             })}
@@ -55,10 +59,17 @@ function AppShell() {
           {NAV.map((n) => {
             const active = loc.pathname.startsWith(n.to);
             return (
-              <Link key={n.to} to={n.to}
+              <Link
+                key={n.to}
+                to={n.to}
                 className={`py-2.5 text-center text-[10px] uppercase tracking-widest transition
-                  ${active ? "text-primary" : "text-muted-foreground"}`}>
-                <div className={`text-lg leading-none mb-0.5 ${active ? "drop-shadow-[0_0_8px_var(--primary)]" : ""}`}>{n.icon}</div>
+                  ${active ? "text-primary" : "text-muted-foreground"}`}
+              >
+                <div
+                  className={`text-lg leading-none mb-0.5 ${active ? "drop-shadow-[0_0_8px_var(--primary)]" : ""}`}
+                >
+                  {n.icon}
+                </div>
                 {n.label}
               </Link>
             );

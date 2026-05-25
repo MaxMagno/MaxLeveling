@@ -6,9 +6,7 @@ import { Field, Select, TextInput } from "@/components/ml/Field";
 import { NeonButton } from "@/components/ml/NeonButton";
 import { Badge } from "@/components/ml/Badge";
 import { useGame } from "@/lib/game/store";
-import {
-  checkinForMonth, formatDelta, monthKey, sortedCheckins,
-} from "@/lib/game/bodyCheckin";
+import { checkinForMonth, formatDelta, monthKey, sortedCheckins } from "@/lib/game/bodyCheckin";
 
 export const Route = createFileRoute("/_app/checkin")({ component: Checkin });
 
@@ -19,9 +17,7 @@ function Checkin() {
   const latest = sortedCheckins(state.bodyCheckins)[0];
   const currentMonthKey = monthKey(new Date().toISOString().slice(0, 10));
 
-  const [weightKg, setWeightKg] = useState(
-    () => thisMonth?.weightKg ?? profile.weightKg,
-  );
+  const [weightKg, setWeightKg] = useState(() => thisMonth?.weightKg ?? profile.weightKg);
   const [muscleMassValue, setMuscleMassValue] = useState<number | "">(
     () => thisMonth?.muscleMassValue ?? profile.muscleMass ?? "",
   );
@@ -53,14 +49,12 @@ function Checkin() {
         <h1 className="font-display text-2xl mt-1">Check-in corporal mensual</h1>
       </header>
 
-      <SystemMessage>
-        El sistema requiere actualización de estado físico.
-      </SystemMessage>
+      <SystemMessage>El sistema requiere actualización de estado físico.</SystemMessage>
 
       {thisMonth && (
         <SystemMessage>
-          Ya has registrado el check-in de este mes. Puedes actualizar los datos abajo;
-          la recompensa no se duplicará.
+          Ya has registrado el check-in de este mes. Puedes actualizar los datos abajo; la
+          recompensa no se duplicará.
         </SystemMessage>
       )}
 
@@ -74,9 +68,7 @@ function Checkin() {
               <span className="text-muted-foreground">Peso</span>
               <div className="font-display text-foreground">{latest.weightKg} kg</div>
               {latest.weightDelta !== undefined && (
-                <div className="text-neon mt-0.5">
-                  Δ {formatDelta(latest.weightDelta, "kg")}
-                </div>
+                <div className="text-neon mt-0.5">Δ {formatDelta(latest.weightDelta, "kg")}</div>
               )}
             </div>
             <div>
@@ -121,7 +113,8 @@ function Checkin() {
                 required
                 value={muscleMassValue}
                 onChange={(e) =>
-                  setMuscleMassValue(e.target.value === "" ? "" : Number(e.target.value))}
+                  setMuscleMassValue(e.target.value === "" ? "" : Number(e.target.value))
+                }
               />
             </Field>
             <Field label="Unidad masa muscular">
@@ -154,9 +147,7 @@ function Checkin() {
               <li key={c.id} className="panel p-3 text-sm">
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <span className="font-display">{c.date}</span>
-                  {monthKey(c.date) === currentMonthKey && (
-                    <Badge tone="muted">Este mes</Badge>
-                  )}
+                  {monthKey(c.date) === currentMonthKey && <Badge tone="muted">Este mes</Badge>}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {c.weightKg} kg · {c.muscleMassValue} {c.muscleMassUnit}

@@ -6,7 +6,9 @@ import { useGame } from "@/lib/game/store";
 import { Badge } from "@/components/ml/Badge";
 import { OnboardingProgress } from "@/components/ml/OnboardingProgress";
 import {
-  PACT_LABEL, PACT_MULTIPLIER, RECOMMENDED_PACT_INITIAL,
+  PACT_LABEL,
+  PACT_MULTIPLIER,
+  RECOMMENDED_PACT_INITIAL,
   onboardingStepLabel,
   type PactType,
 } from "@/lib/game/types";
@@ -14,14 +16,30 @@ import {
 export const Route = createFileRoute("/onboarding/pact")({ component: PactStep });
 
 const OPTIONS: { id: PactType; title: string; mult: string; desc: string }[] = [
-  { id: "progresion", title: "A · Progresión recomendada", mult: "x1.10",
-    desc: "El sistema recomienda avanzar de forma saludable esta semana." },
-  { id: "mantener",   title: "B · Mantener pacto", mult: "x1.00",
-    desc: "Mismos objetivos. Estable, sin penalización." },
-  { id: "reducir",    title: "C · Reducir pacto", mult: "x0.70",
-    desc: "Bajas objetivos voluntariamente. XP reducido." },
-  { id: "descarga",   title: "D · Semana de descarga", mult: "x0.90",
-    desc: "Bajada saludable por fatiga o recuperación." },
+  {
+    id: "progresion",
+    title: "A · Progresión recomendada",
+    mult: "x1.10",
+    desc: "El sistema recomienda avanzar de forma saludable esta semana.",
+  },
+  {
+    id: "mantener",
+    title: "B · Mantener pacto",
+    mult: "x1.00",
+    desc: "Mismos objetivos. Estable, sin penalización.",
+  },
+  {
+    id: "reducir",
+    title: "C · Reducir pacto",
+    mult: "x0.70",
+    desc: "Bajas objetivos voluntariamente. XP reducido.",
+  },
+  {
+    id: "descarga",
+    title: "D · Semana de descarga",
+    mult: "x0.90",
+    desc: "Bajada saludable por fatiga o recuperación.",
+  },
 ];
 
 function PactStep() {
@@ -50,8 +68,9 @@ function PactStep() {
         </header>
 
         <SystemMessage>
-          Recomendación inicial: <span className="text-neon">{PACT_LABEL[recommended]}</span>
-          {" "}(x{PACT_MULTIPLIER[recommended]}). El sistema recomienda avanzar de forma saludable esta semana.
+          Recomendación inicial: <span className="text-neon">{PACT_LABEL[recommended]}</span> (x
+          {PACT_MULTIPLIER[recommended]}). El sistema recomienda avanzar de forma saludable esta
+          semana.
         </SystemMessage>
 
         <SystemPanel eyebrow="Selecciona tu pacto" title="¿Cómo afrontas esta semana?" neon>
@@ -60,8 +79,12 @@ function PactStep() {
               const active = sel === o.id;
               const isRecommended = o.id === recommended;
               return (
-                <button key={o.id} type="button" onClick={() => setSel(o.id)}
-                  className={`text-left panel p-4 transition ${active ? "panel-neon" : ""} ${isRecommended ? "ring-1 ring-[color:var(--success)]/40" : ""}`}>
+                <button
+                  key={o.id}
+                  type="button"
+                  onClick={() => setSel(o.id)}
+                  className={`text-left panel p-4 transition ${active ? "panel-neon" : ""} ${isRecommended ? "ring-1 ring-[color:var(--success)]/40" : ""}`}
+                >
                   <div className="flex items-center justify-between mb-1">
                     <div className="font-display text-sm">{o.title}</div>
                     <span className="chip">{o.mult}</span>
@@ -77,11 +100,16 @@ function PactStep() {
           </div>
 
           <div className="flex items-center justify-between pt-5">
-            <button type="button" onClick={() => nav({ to: "/onboarding/avatar" })}
-              className="text-xs uppercase tracking-widest text-muted-foreground hover:text-primary">
+            <button
+              type="button"
+              onClick={() => nav({ to: "/onboarding/avatar" })}
+              className="text-xs uppercase tracking-widest text-muted-foreground hover:text-primary"
+            >
               ← Volver
             </button>
-            <NeonButton onClick={confirm} variant="violet">⚡ Iniciar sistema</NeonButton>
+            <NeonButton onClick={confirm} variant="violet">
+              ⚡ Iniciar sistema
+            </NeonButton>
           </div>
         </SystemPanel>
       </div>

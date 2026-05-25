@@ -16,10 +16,7 @@ export function rebuildEventsFromDefaults(persisted?: GameEvent[]): GameEvent[] 
   });
 }
 
-export function migrateHydratedState(
-  parsed: Partial<GameState>,
-  initial: GameState,
-): GameState {
+export function migrateHydratedState(parsed: Partial<GameState>, initial: GameState): GameState {
   const merged = { ...initial, ...parsed };
 
   let events = merged.events;
@@ -27,12 +24,7 @@ export function migrateHydratedState(
     events = rebuildEventsFromDefaults(events);
   }
 
-  events = syncEventsProgress(
-    events,
-    merged.history,
-    merged.weekStartIso,
-    merged.exercises,
-  );
+  events = syncEventsProgress(events, merged.history, merged.weekStartIso, merged.exercises);
 
   return {
     ...merged,

@@ -34,11 +34,20 @@ function AvatarView() {
         <div className="space-y-4">
           <SystemPanel eyebrow="Identidad" title={a.name} neon>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
-              <dt className="text-muted-foreground">Estilo</dt><dd className="capitalize">{a.style.replace("_", " ")}</dd>
-              <dt className="text-muted-foreground">Piel</dt><dd className="capitalize">{a.skinTone.replace("_", " ")}</dd>
-              <dt className="text-muted-foreground">Pelo</dt><dd className="capitalize">{a.hairColor.replace("_", " ")} · {a.hairStyle.replace("_", " ")}</dd>
-              <dt className="text-muted-foreground">Ojos</dt><dd className="capitalize">{a.eyeColor}</dd>
-              <dt className="text-muted-foreground">Fase</dt><dd>{phase}/5 · {PHASE_LABEL[phase]}</dd>
+              <dt className="text-muted-foreground">Estilo</dt>
+              <dd className="capitalize">{a.style.replace("_", " ")}</dd>
+              <dt className="text-muted-foreground">Piel</dt>
+              <dd className="capitalize">{a.skinTone.replace("_", " ")}</dd>
+              <dt className="text-muted-foreground">Pelo</dt>
+              <dd className="capitalize">
+                {a.hairColor.replace("_", " ")} · {a.hairStyle.replace("_", " ")}
+              </dd>
+              <dt className="text-muted-foreground">Ojos</dt>
+              <dd className="capitalize">{a.eyeColor}</dd>
+              <dt className="text-muted-foreground">Fase</dt>
+              <dd>
+                {phase}/5 · {PHASE_LABEL[phase]}
+              </dd>
             </dl>
           </SystemPanel>
 
@@ -46,15 +55,18 @@ function AvatarView() {
             <XPBar value={state.affinity} max={100} tone="violet" label="Afinidad total" />
             <div className="grid grid-cols-5 gap-2 mt-4">
               {[1, 2, 3, 4, 5].map((p) => (
-                <div key={p}
+                <div
+                  key={p}
                   className={`aspect-square rounded-md grid place-items-center text-xs font-display transition
-                    ${p <= phase ? "panel-neon text-neon" : "panel opacity-50 text-muted-foreground"}`}>
+                    ${p <= phase ? "panel-neon text-neon" : "panel opacity-50 text-muted-foreground"}`}
+                >
                   F{p}
                 </div>
               ))}
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              Cada fase desbloquea una skin visual y una nueva forma de hablar contigo. Mantén tu constancia para conservar la fase.
+              Cada fase desbloquea una skin visual y una nueva forma de hablar contigo. Mantén tu
+              constancia para conservar la fase.
             </p>
           </SystemPanel>
 
@@ -72,9 +84,14 @@ function AvatarView() {
           </SystemPanel>
 
           <div className="flex justify-end">
-            <NeonButton variant="danger" onClick={() => {
-              if (confirm("¿Reiniciar todo el progreso?")) reset();
-            }}>Reiniciar perfil</NeonButton>
+            <NeonButton
+              variant="danger"
+              onClick={() => {
+                if (confirm("¿Reiniciar todo el progreso?")) reset();
+              }}
+            >
+              Reiniciar perfil
+            </NeonButton>
           </div>
         </div>
       </div>

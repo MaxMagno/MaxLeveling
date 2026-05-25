@@ -12,8 +12,9 @@ function History() {
   const failed = last30.filter((h) => h.failed && !h.completed).length;
   const xp = last30.reduce((a, h) => a + h.xpEarned, 0);
   const aff = last30.reduce((a, h) => a + h.affinityEarned, 0);
-  const best = last30.reduce<typeof last30[number] | null>(
-    (b, h) => (!b || h.xpEarned > b.xpEarned ? h : b), null,
+  const best = last30.reduce<(typeof last30)[number] | null>(
+    (b, h) => (!b || h.xpEarned > b.xpEarned ? h : b),
+    null,
   );
 
   return (
@@ -29,10 +30,14 @@ function History() {
         <Stat label="Afinidad" value={aff} color="var(--accent)" />
       </div>
 
-      <SystemPanel eyebrow={`Pacto activo · ${PACT_LABEL[state.pact]} (x${PACT_MULTIPLIER[state.pact]})`}
-        title="Últimos 30 días">
+      <SystemPanel
+        eyebrow={`Pacto activo · ${PACT_LABEL[state.pact]} (x${PACT_MULTIPLIER[state.pact]})`}
+        title="Últimos 30 días"
+      >
         {last30.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Aún no hay registros. Completa tu primera misión.</p>
+          <p className="text-sm text-muted-foreground">
+            Aún no hay registros. Completa tu primera misión.
+          </p>
         ) : (
           <ul className="divide-y divide-border/60">
             {[...last30].reverse().map((h) => (
@@ -40,15 +45,27 @@ function History() {
                 <span className="font-display text-xs text-muted-foreground">{h.date}</span>
                 <span className="flex items-center gap-3">
                   {h.completed ? (
-                    <span className="chip" style={{
-                      background: "color-mix(in oklab, var(--success) 15%, transparent)",
-                      borderColor: "var(--success)", color: "var(--success)",
-                    }}>✓ Completado</span>
+                    <span
+                      className="chip"
+                      style={{
+                        background: "color-mix(in oklab, var(--success) 15%, transparent)",
+                        borderColor: "var(--success)",
+                        color: "var(--success)",
+                      }}
+                    >
+                      ✓ Completado
+                    </span>
                   ) : (
-                    <span className="chip" style={{
-                      background: "color-mix(in oklab, var(--destructive) 15%, transparent)",
-                      borderColor: "var(--destructive)", color: "var(--destructive)",
-                    }}>✗ Fallido</span>
+                    <span
+                      className="chip"
+                      style={{
+                        background: "color-mix(in oklab, var(--destructive) 15%, transparent)",
+                        borderColor: "var(--destructive)",
+                        color: "var(--destructive)",
+                      }}
+                    >
+                      ✗ Fallido
+                    </span>
                   )}
                   <span className="text-neon font-display w-16 text-right">+{h.xpEarned} XP</span>
                 </span>
@@ -71,7 +88,9 @@ function Stat({ label, value, color }: { label: string; value: number; color: st
   return (
     <div className="panel p-4">
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
-      <div className="font-display text-2xl mt-1" style={{ color }}>{value}</div>
+      <div className="font-display text-2xl mt-1" style={{ color }}>
+        {value}
+      </div>
     </div>
   );
 }

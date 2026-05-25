@@ -1,10 +1,4 @@
-import type {
-  ActiveEffect,
-  GameEvent,
-  InventorySlot,
-  ItemDefinition,
-  ItemId,
-} from "./types";
+import type { ActiveEffect, GameEvent, InventorySlot, ItemDefinition, ItemId } from "./types";
 import { ITEM_RARITY_LABEL } from "./types";
 
 export const ITEM_CATALOG: Record<ItemId, ItemDefinition> = {

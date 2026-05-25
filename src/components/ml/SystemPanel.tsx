@@ -10,8 +10,18 @@ export function SystemLabel() {
 }
 
 export function SystemPanel({
-  title, eyebrow, children, className = "", neon = false,
-}: { title?: string; eyebrow?: string; children: ReactNode; className?: string; neon?: boolean }) {
+  title,
+  eyebrow,
+  children,
+  className = "",
+  neon = false,
+}: {
+  title?: string;
+  eyebrow?: string;
+  children: ReactNode;
+  className?: string;
+  neon?: boolean;
+}) {
   return (
     <section className={`panel ${neon ? "panel-neon" : ""} p-5 sm:p-6 ${className}`}>
       {(eyebrow || title) && (

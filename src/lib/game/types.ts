@@ -1,18 +1,34 @@
 export type UserGender = "hombre" | "mujer" | "no_definido" | "no_indica";
 export type FitnessLevel = "principiante" | "intermedio" | "avanzado" | "no_se";
 export type MainGoal =
-  | "habito" | "perder_grasa" | "ganar_musculo"
-  | "resistencia" | "fuerza" | "activo";
+  | "habito"
+  | "perder_grasa"
+  | "ganar_musculo"
+  | "resistencia"
+  | "fuerza"
+  | "activo";
 
 export type AvatarStyle = "femenino" | "masculino" | "androgeno" | "no_definido";
 export type SkinTone = "muy_clara" | "clara" | "media" | "morena" | "oscura";
 export type HairColor =
-  | "negro" | "castano_oscuro" | "castano_claro" | "rubio"
-  | "pelirrojo" | "blanco_plata" | "azul_oscuro" | "violeta";
+  | "negro"
+  | "castano_oscuro"
+  | "castano_claro"
+  | "rubio"
+  | "pelirrojo"
+  | "blanco_plata"
+  | "azul_oscuro"
+  | "violeta";
 export type HairStyle =
-  | "largo_liso" | "largo_ondulado" | "media_melena" | "bob_corto"
-  | "coleta_alta" | "coleta_baja" | "largo_flequillo"
-  | "corto_texturizado" | "medio_despeinado";
+  | "largo_liso"
+  | "largo_ondulado"
+  | "media_melena"
+  | "bob_corto"
+  | "coleta_alta"
+  | "coleta_baja"
+  | "largo_flequillo"
+  | "corto_texturizado"
+  | "medio_despeinado";
 export type EyeColor = "marron" | "azul" | "verde" | "gris" | "violeta" | "ambar";
 
 export interface UserProfile {
@@ -47,7 +63,7 @@ export interface Exercise {
 }
 
 export interface DailyLog {
-  date: string;          // YYYY-MM-DD
+  date: string; // YYYY-MM-DD
   values: Record<string, number>;
   completed: boolean;
   xpEarned: number;
@@ -56,11 +72,7 @@ export interface DailyLog {
   failed?: boolean;
 }
 
-export type ItemId =
-  | "rest_pass"
-  | "streak_shield"
-  | "xp_bonus_50"
-  | "affinity_mult";
+export type ItemId = "rest_pass" | "streak_shield" | "xp_bonus_50" | "affinity_mult";
 
 export type ItemRarity = "comun" | "raro" | "epico";
 
@@ -144,12 +156,12 @@ export interface GameState {
   avatar: AvatarProfile | null;
   level: number;
   xp: number;
-  affinity: number;        // 0..100
+  affinity: number; // 0..100
   streak: number;
   bestStreak: number;
   pact: PactType;
   pactConfigured: boolean;
-  weekStartIso: string;    // monday iso date
+  weekStartIso: string; // monday iso date
   exercises: Exercise[];
   history: DailyLog[];
   todayLog: DailyLog | null;
@@ -166,7 +178,7 @@ export const ITEM_RARITY_LABEL: Record<ItemRarity, string> = {
 };
 
 export const PACT_MULTIPLIER: Record<PactType, number> = {
-  progresion: 1.10,
+  progresion: 1.1,
   mantener: 1.0,
   reducir: 0.7,
   descarga: 0.9,
@@ -215,8 +227,8 @@ export const RANKS: { min: number; name: string }[] = [
 
 // XP necesario acumulado para alcanzar cada nivel (índice = nivel-1)
 export const XP_THRESHOLDS = [
-  0, 500, 1200, 2000, 3000, 4200, 5600, 7200, 9000, 11000,
-  13200, 15600, 18200, 21000, 24000, 27200, 30600, 34200, 38000, 42000,
+  0, 500, 1200, 2000, 3000, 4200, 5600, 7200, 9000, 11000, 13200, 15600, 18200, 21000, 24000, 27200,
+  30600, 34200, 38000, 42000,
 ];
 
 export function rankFor(level: number) {

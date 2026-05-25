@@ -1,13 +1,14 @@
 import { ITEM_CATALOG } from "./mock";
 import type {
-  ActiveEffect, DailyLog, GameState, InventorySlot, ItemId, UseItemResult,
+  ActiveEffect,
+  DailyLog,
+  GameState,
+  InventorySlot,
+  ItemId,
+  UseItemResult,
 } from "./types";
 
-export const PENDING_EFFECT_ITEMS: ItemId[] = [
-  "xp_bonus_50",
-  "affinity_mult",
-  "streak_shield",
-];
+export const PENDING_EFFECT_ITEMS: ItemId[] = ["xp_bonus_50", "affinity_mult", "streak_shield"];
 
 export const ITEM_USE_MESSAGES: Record<ItemId, string> = {
   rest_pass: "Pase de descanso activado. Descanso autorizado por el sistema.",
@@ -42,9 +43,7 @@ export function addInventoryItem(
 ): InventorySlot[] {
   const idx = inventory.findIndex((s) => s.itemId === itemId);
   if (idx >= 0) {
-    return inventory.map((s, i) =>
-      i === idx ? { ...s, quantity: s.quantity + amount } : s,
-    );
+    return inventory.map((s, i) => (i === idx ? { ...s, quantity: s.quantity + amount } : s));
   }
   return [...inventory, { itemId, quantity: amount }];
 }
@@ -57,9 +56,7 @@ export function consumeInventory(
   const qty = inventoryQty(inventory, itemId);
   if (qty < amount) return inventory;
   const next = inventory
-    .map((s) =>
-      s.itemId === itemId ? { ...s, quantity: s.quantity - amount } : s,
-    )
+    .map((s) => (s.itemId === itemId ? { ...s, quantity: s.quantity - amount } : s))
     .filter((s) => s.quantity > 0);
   return next;
 }
@@ -80,10 +77,7 @@ export function addPendingEffect(
   return [...effects.filter((e) => e.itemId !== itemId), newEffect(itemId, date)];
 }
 
-export function removeEffectsByItem(
-  effects: ActiveEffect[],
-  itemIds: ItemId[],
-): ActiveEffect[] {
+export function removeEffectsByItem(effects: ActiveEffect[], itemIds: ItemId[]): ActiveEffect[] {
   const drop = new Set(itemIds);
   return effects.filter((e) => !drop.has(e.itemId));
 }
@@ -103,7 +97,10 @@ export function canUseRestPass(
     return { ok: false, message: "Ya usaste un Pase de descanso hoy." };
   }
   if (state.todayLog && !state.todayLog.restAuthorized) {
-    return { ok: false, message: "Ya registraste la misión de hoy. El pase solo aplica antes de registrar." };
+    return {
+      ok: false,
+      message: "Ya registraste la misión de hoy. El pase solo aplica antes de registrar.",
+    };
   }
   return { ok: true, message: "" };
 }

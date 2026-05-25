@@ -1,7 +1,11 @@
 import { bodyCheckinAvatarMessage } from "./avatarMessages";
 import { addInventoryItem } from "./items";
 import type {
-  BodyCheckin, BodyCheckinInput, DailyLog, GameState, RegisterBodyCheckinResult,
+  BodyCheckin,
+  BodyCheckinInput,
+  DailyLog,
+  GameState,
+  RegisterBodyCheckinResult,
 } from "./types";
 
 export function monthKey(isoDate: string): string {
@@ -84,10 +88,7 @@ export function registerBodyCheckin(
     rewardGranted: true,
   };
 
-  const bodyCheckins = [
-    ...state.bodyCheckins.filter((c) => monthKey(c.date) !== mk),
-    checkin,
-  ];
+  const bodyCheckins = [...state.bodyCheckins.filter((c) => monthKey(c.date) !== mk), checkin];
 
   const message = grantReward
     ? "Check-in completado. Afinidad +5. Recompensa añadida al inventario."

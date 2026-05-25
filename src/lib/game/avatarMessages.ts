@@ -43,9 +43,7 @@ export interface AvatarMessageContext {
   restAuthorized?: boolean;
 }
 
-function p(
-  f1: string, f2: string, f3: string, f4: string, f5: string,
-): Record<Phase, string> {
+function p(f1: string, f2: string, f3: string, f4: string, f5: string): Record<Phase, string> {
   return { 1: f1, 2: f2, 3: f3, 4: f4, 5: f5 };
 }
 
@@ -284,7 +282,12 @@ export function isStreakMilestone(streak: number): boolean {
 export function resolveDashboardAction(
   affinity: number,
   streak: number,
-  todayLog: { completed?: boolean; failed?: boolean; restAuthorized?: boolean; xpEarned?: number } | null,
+  todayLog: {
+    completed?: boolean;
+    failed?: boolean;
+    restAuthorized?: boolean;
+    xpEarned?: number;
+  } | null,
 ): AvatarActionType {
   if (todayLog?.restAuthorized) return "rest_pass_used";
   if (todayLog?.completed) {

@@ -11,7 +11,13 @@ const TONE: Record<Tone, string> = {
 };
 
 export function Badge({
-  tone = "neon", children, className = "",
-}: { tone?: Tone; children: ReactNode; className?: string }) {
+  tone = "neon",
+  children,
+  className = "",
+}: {
+  tone?: Tone;
+  children: ReactNode;
+  className?: string;
+}) {
   return <span className={`${TONE[tone]} ${className}`}>{children}</span>;
 }
