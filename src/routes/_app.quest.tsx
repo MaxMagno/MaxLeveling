@@ -209,12 +209,17 @@ function Quest() {
               <span className="text-warning font-display">Pendiente</span>
             )}
           </div>
+          {state.todayLog && !state.todayLog.restAuthorized && (
+  <SystemMessage>
+    La recompensa base diaria ya fue reclamada. Puedes actualizar los datos, pero el sistema solo sumará mejoras reales.
+  </SystemMessage>
+)}
           <NeonButton
             type="submit"
             variant={completedPreview ? "primary" : "ghost"}
             disabled={restDay}
           >
-            ⚡ Registrar y completar
+            {state.todayLog ? "Actualizar misión de hoy" : "⚡ Registrar y completar"}
           </NeonButton>
         </div>
       </form>

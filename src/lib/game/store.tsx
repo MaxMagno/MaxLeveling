@@ -42,7 +42,7 @@ const initialState: GameState = {
   avatar: null,
   level: 1,
   xp: 0,
-  affinity: 10,
+  affinity: 0,
   streak: 0,
   bestStreak: 0,
   pact: "mantener",
@@ -133,9 +133,81 @@ export function GameProvider({ children }: { children: ReactNode }) {
           else if (extra >= 0.25) bonus = 25;
         }
         const baseXp = completed ? Math.round(100 * mult + bonus) : 0;
-        const baseAff = completed ? 5 : -3;
+const baseAff = completed ? 5 : -3;
 
-        const rewards = applyMissionRewards(
+const existingToday = state.history.find((h) => h.date === today) ?? state.todayLog;
+
+if (existingToday && !existingToday.restAuthorized) {
+  const previousXp = existingToday.xpEarned ?? 0;
+  const previousAffinity = existingToday.affinityEarned ?? 0;
+
+  const nextXpEarned = Math.max(previousXp, baseXp);
+  const nextAffinityEarned = Math.max(previousAffinity, baseAff);
+
+  const xpDelta = Math.max(0, nextXpEarned - previousXp);
+  const affinityDelta = Math.max(0, nextAffinityEarned - previousAffinity);
+
+  const updatedLog: DailyLog = {
+    ...existingToday,
+    values,
+    completed: existingToday.completed || completed,
+    failed: existingToday.completed || completed ? false : !completed,
+    xpEarned: nextXpEarned,
+    affinityEarned: nextAffinityEarned,
+  };
+
+  const history = [...state.history.filter((h) => h.date !== today), updatedLog];
+
+  const { events, inventory, completions } = applyEventsAfterDaily(
+    {
+      weekStartIso: state.weekStartIso,
+      inventory: state.inventory,
+      events: state.events,
+      exercises: state.exercises,
+    },
+    history,
+  );
+
+  const streak =
+    !existingToday.completed && completed
+      ? computeStreakAfterMission(true, state.streak, false)
+      : state.streak;
+
+  setState((s) => {
+    const xp = Math.max(0, s.xp + xpDelta);
+    const level = levelFromXp(xp);
+    const bestStreak = Math.max(s.bestStreak, streak);
+    const affinity = Math.max(0, Math.min(100, s.affinity + affinityDelta));
+
+    return {
+      ...s,
+      history,
+      xp,
+      level,
+      streak,
+      bestStreak,
+      affinity,
+      todayLog: updatedLog,
+      events,
+      inventory,
+    };
+  });
+
+  return {
+    log: updatedLog,
+    eventCompletions: completions,
+    itemMessages:
+      xpDelta > 0 || affinityDelta > 0
+        ? [
+            `Misión de hoy actualizada. Solo se ha añadido la mejora conseguida: +${xpDelta} XP, +${affinityDelta} afinidad.`,
+          ]
+        : [
+            "La misión de hoy ya fue registrada. Puedes editarla, pero no ganarás recompensas duplicadas.",
+          ],
+  };
+}
+
+const rewards = applyMissionRewards(
           completed,
           baseXp,
           baseAff,
@@ -155,9 +227,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
         const history = [...state.history.filter((h) => h.date !== log.date), log];
         const { events, inventory, completions } = applyEventsAfterDaily(
-          { ...state, effects: rewards.effects },
-          history,
-        );
+  {
+    weekStartIso: state.weekStartIso,
+    inventory: state.inventory,
+    events: state.events,
+    exercises: state.exercises,
+  },
+  history,
+);
 
         const streak = computeStreakAfterMission(completed, state.streak, rewards.streakShieldUsed);
 
