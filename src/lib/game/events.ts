@@ -1,4 +1,7 @@
-import type { DailyLog, GameEvent, GameState, InventorySlot, ItemId } from "./types";
+import { ITEM_CATALOG } from "./mock";
+import type {
+  DailyLog, EventCompletionNotice, GameEvent, GameState, InventorySlot, ItemId,
+} from "./types";
 
 export const EVENT_IDS = {
   piernasAcero: "piernas_acero",
@@ -45,13 +48,20 @@ function addInventoryItem(
   return [...inventory, { itemId, quantity: amount }];
 }
 
+export interface ApplyEventsResult {
+  events: GameEvent[];
+  inventory: InventorySlot[];
+  completions: EventCompletionNotice[];
+}
+
 /** Recalcula progreso semanal, completa eventos y entrega recompensas una sola vez. */
 export function applyEventsAfterDaily(
   state: Pick<GameState, "events" | "inventory" | "exercises" | "weekStartIso">,
   history: DailyLog[],
-): Pick<GameState, "events" | "inventory"> {
+): ApplyEventsResult {
   const logs = weekLogs(history, state.weekStartIso);
   let inventory = state.inventory;
+  const completions: EventCompletionNotice[] = [];
 
   const events = state.events.map((event) => {
     if (event.status === "completed") return event;
@@ -62,6 +72,12 @@ export function applyEventsAfterDaily(
     }
 
     inventory = addInventoryItem(inventory, event.rewardItemId);
+    completions.push({
+      eventId: event.id,
+      eventName: event.name,
+      itemId: event.rewardItemId,
+      itemName: ITEM_CATALOG[event.rewardItemId].name,
+    });
     return {
       ...event,
       progress: event.target,
@@ -69,5 +85,5 @@ export function applyEventsAfterDaily(
     };
   });
 
-  return { events, inventory };
+  return { events, inventory, completions };
 }

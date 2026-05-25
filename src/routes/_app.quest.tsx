@@ -5,7 +5,9 @@ import { NeonButton } from "@/components/ml/NeonButton";
 import { Badge } from "@/components/ml/Badge";
 import { TextInput } from "@/components/ml/Field";
 import { useGame } from "@/lib/game/store";
-import { PACT_LABEL, PACT_MULTIPLIER, type Exercise } from "@/lib/game/types";
+import {
+  PACT_LABEL, PACT_MULTIPLIER, type EventCompletionNotice, type Exercise,
+} from "@/lib/game/types";
 
 export const Route = createFileRoute("/_app/quest")({ component: Quest });
 
@@ -79,11 +81,13 @@ function Quest() {
   const [vals, setVals] = useState<Record<string, number>>(() =>
     Object.fromEntries(state.exercises.map((e) => [e.id, state.todayLog?.values[e.id] ?? 0])));
   const [done, setDone] = useState(state.todayLog ?? null);
+  const [eventCompletions, setEventCompletions] = useState<EventCompletionNotice[]>([]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const log = submitDaily(vals);
+    const { log, eventCompletions: completions } = submitDaily(vals);
     setDone(log);
+    setEventCompletions(completions);
     if (log.completed && typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -126,6 +130,13 @@ function Quest() {
           </NeonButton>
         </div>
       </form>
+
+      {eventCompletions.map((n) => (
+        <SystemMessage key={n.eventId}>
+          Evento completado: <span className="text-neon font-display">{n.eventName}</span>.
+          {" "}Has obtenido <span className="text-violet font-display">{n.itemName}</span> en tu inventario.
+        </SystemMessage>
+      ))}
 
       {done && (
         <SystemPanel eyebrow={done.completed ? "Resultado" : "Resultado"}

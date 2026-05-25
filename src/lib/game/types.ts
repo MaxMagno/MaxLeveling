@@ -83,6 +83,18 @@ export interface GameEvent {
   status: GameEventStatus;
 }
 
+export interface EventCompletionNotice {
+  eventId: string;
+  eventName: string;
+  itemId: ItemId;
+  itemName: string;
+}
+
+export interface SubmitDailyResult {
+  log: DailyLog;
+  eventCompletions: EventCompletionNotice[];
+}
+
 export interface InventorySlot {
   itemId: ItemId;
   quantity: number;

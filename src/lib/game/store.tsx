@@ -5,7 +5,8 @@ import {
 } from "./mock";
 import {
   DEFAULT_EXERCISES, PACT_MULTIPLIER, levelFromXp,
-  type AvatarProfile, type DailyLog, type GameState, type PactType, type UserProfile,
+  type AvatarProfile, type DailyLog, type GameState, type PactType, type SubmitDailyResult,
+  type UserProfile,
 } from "./types";
 
 const KEY = "maxleveling:v1";
@@ -44,7 +45,7 @@ interface Ctx {
   setProfile: (p: UserProfile) => void;
   setAvatar: (a: AvatarProfile) => void;
   setPact: (p: PactType) => void;
-  submitDaily: (values: Record<string, number>) => DailyLog;
+  submitDaily: (values: Record<string, number>) => SubmitDailyResult;
   reset: () => void;
 }
 
@@ -100,14 +101,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
         affinityEarned: affGain,
       };
 
+      const history = [...state.history.filter((h) => h.date !== log.date), log];
+      const { events, inventory, completions } = applyEventsAfterDaily(state, history);
+
       setState((s) => {
-        const history = [...s.history.filter((h) => h.date !== log.date), log];
         const xp = Math.max(0, s.xp + log.xpEarned);
         const level = levelFromXp(xp);
         const streak = completed ? s.streak + 1 : 0;
         const bestStreak = Math.max(s.bestStreak, streak);
         const affinity = Math.max(0, Math.min(100, s.affinity + affGain));
-        const { events, inventory } = applyEventsAfterDaily(s, history);
         return {
           ...s,
           history,
@@ -121,7 +123,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           inventory,
         };
       });
-      return log;
+      return { log, eventCompletions: completions };
     },
     reset: () => {
       localStorage.removeItem(KEY);
