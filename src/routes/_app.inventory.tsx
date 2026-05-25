@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+
 import { AvatarQuote } from "@/components/ml/AvatarQuote";
 import { SystemPanel, SystemMessage } from "@/components/ml/SystemPanel";
 import { ActiveEffectsBar } from "@/components/ml/ActiveEffectsBar";
@@ -7,20 +8,25 @@ import { useGame } from "@/lib/game/store";
 import { itemById, itemRarityLabel } from "@/lib/game/mock";
 import { getAvatarMessage, itemUsedToAvatarAction } from "@/lib/game/avatarMessages";
 import { inventoryQty, PENDING_EFFECT_ITEMS } from "@/lib/game/items";
+
 import type { ItemId } from "@/lib/game/types";
 
-export const Route = createFileRoute("/_app/inventory")({ component: Inventory });
+export const Route = createFileRoute("/_app/inventory")({
+  component: Inventory,
+});
 
 const ITEM_ORDER: ItemId[] = ["rest_pass", "streak_shield", "xp_bonus_50", "affinity_mult"];
 
 function Inventory() {
-  const { state, useItem } = useGame();
+  const { state, activateItem } = useGame();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [avatarQuote, setAvatarQuote] = useState<string | null>(null);
 
   const onUse = (itemId: ItemId) => {
-    const result = useItem(itemId);
+    const result = activateItem(itemId);
+
     setFeedback(result.message);
+
     if (result.ok) {
       setAvatarQuote(
         getAvatarMessage({
@@ -61,8 +67,10 @@ function Inventory() {
           return (
             <SystemPanel key={id} eyebrow={itemRarityLabel(it)} title={it.name}>
               <p className="text-sm text-muted-foreground mb-3">{it.description}</p>
+
               <div className="flex items-center justify-between gap-2">
                 <span className="chip">x{quantity}</span>
+
                 <button
                   type="button"
                   disabled={disabled}
@@ -72,10 +80,11 @@ function Inventory() {
                   Usar
                 </button>
               </div>
+
               {isActive && (
-                <p className="text-[10px] uppercase tracking-widest text-violet mt-2">
-                  Efecto activo
-                </p>
+                <div className="mt-3">
+                  <span className="chip chip-violet">Efecto activo</span>
+                </div>
               )}
             </SystemPanel>
           );

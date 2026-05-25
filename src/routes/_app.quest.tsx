@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+
 import { AvatarQuote } from "@/components/ml/AvatarQuote";
 import { SystemPanel, SystemMessage } from "@/components/ml/SystemPanel";
 import { ActiveEffectsBar } from "@/components/ml/ActiveEffectsBar";
@@ -19,7 +20,9 @@ import {
   type Exercise,
 } from "@/lib/game/types";
 
-export const Route = createFileRoute("/_app/quest")({ component: Quest });
+export const Route = createFileRoute("/_app/quest")({
+  component: Quest,
+});
 
 function statusOf(v: number, target: number) {
   if (v <= 0) return "pending" as const;
@@ -40,8 +43,10 @@ function ExerciseCard({
   const target = ex.target;
   const pct = Math.min(150, Math.round((value / target) * 100));
   const st = statusOf(value, target);
+
   const tone =
     st === "bonus" ? "violet" : st === "done" ? "success" : st === "progress" ? "warning" : "muted";
+
   const label =
     st === "bonus"
       ? "+25% Bonus"
@@ -53,7 +58,9 @@ function ExerciseCard({
 
   return (
     <div
-      className={`panel p-4 transition ${st === "bonus" ? "panel-violet" : st === "done" ? "panel-success" : ""}`}
+      className={`panel p-4 transition ${
+        st === "bonus" ? "panel-violet" : st === "done" ? "panel-success" : ""
+      }`}
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <div>
@@ -65,6 +72,7 @@ function ExerciseCard({
             </span>
           </div>
         </div>
+
         <Badge tone={tone}>{label}</Badge>
       </div>
 
@@ -76,14 +84,15 @@ function ExerciseCard({
         >
           −
         </button>
+
         <TextInput
           type="number"
-          inputMode="numeric"
           min={0}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
           className="flex-1 text-center text-base h-10"
         />
+
         <button
           type="button"
           onClick={() => onChange(value + 1)}
@@ -91,58 +100,61 @@ function ExerciseCard({
         >
           +
         </button>
-        <span className="ml-1 text-xs uppercase tracking-widest text-muted-foreground w-10 text-right">
-          {ex.unit}
-        </span>
+
+        <span className="text-xs text-muted-foreground w-12">{ex.unit}</span>
       </div>
 
-      <div className="mt-3 h-2 rounded-full bg-input/60 overflow-hidden">
-        <div
-          className="h-full transition-all duration-500"
-          style={{
-            width: `${Math.min(100, pct)}%`,
-            background:
-              st === "bonus"
-                ? "linear-gradient(90deg, var(--accent), var(--primary))"
-                : st === "done"
-                  ? "linear-gradient(90deg, var(--success), var(--primary))"
-                  : "linear-gradient(90deg, var(--primary), var(--accent))",
-            boxShadow: st === "done" || st === "bonus" ? "0 0 14px -2px var(--primary)" : undefined,
-          }}
-        />
+      <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
+        <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
       </div>
-      <div className="mt-1 text-right text-[11px] text-muted-foreground">{pct}%</div>
+
+      <div className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">
+        {pct}%
+      </div>
     </div>
   );
 }
 
 function Quest() {
   const { state, submitDaily } = useGame();
+
   const [vals, setVals] = useState<Record<string, number>>(() =>
     Object.fromEntries(state.exercises.map((e) => [e.id, state.todayLog?.values[e.id] ?? 0])),
   );
+
   const [done, setDone] = useState(state.todayLog ?? null);
   const [eventCompletions, setEventCompletions] = useState<EventCompletionNotice[]>([]);
   const [itemMessages, setItemMessages] = useState<string[]>([]);
   const [avatarQuote, setAvatarQuote] = useState<string | null>(null);
 
   const restDay = !!state.todayLog?.restAuthorized;
+  const alreadyRegistered = !!state.todayLog && !state.todayLog.restAuthorized;
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const { log, eventCompletions: completions, itemMessages: msgs } = submitDaily(vals);
+
+    const {
+      log,
+      eventCompletions: completions,
+      itemMessages: msgs,
+    } = submitDaily(vals);
+
     setDone(log);
     setEventCompletions(completions);
     setItemMessages(msgs);
 
     let action: AvatarActionType = "mission_failed";
-    if (log.restAuthorized) action = "rest_pass_used";
-    else if (log.completed) {
+
+    if (log.restAuthorized) {
+      action = "rest_pass_used";
+    } else if (log.completed) {
       action = (log.xpEarned ?? 0) >= 150 ? "mission_bonus" : "mission_completed";
     }
+
     if (isStreakMilestone(state.streak + (log.completed ? 1 : 0))) {
       action = "streak_milestone";
     }
+
     setAvatarQuote(
       getAvatarMessage({
         affinity: state.affinity,
@@ -153,6 +165,7 @@ function Quest() {
         completed: log.completed,
       }),
     );
+
     if (log.completed && typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -164,21 +177,23 @@ function Quest() {
   const bonusPreview = completedPreview && avg - 1 >= 0.25;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5 sm:space-y-6 animate-fade-in-up">
+    <div className="space-y-6">
       <SystemMessage>
-        Misión diaria activada. Registra tu progreso real en cada ejercicio. El sistema validará la
-        misión y aplicará el multiplicador del pacto.
+        Misión diaria activada. Registra tu progreso real en cada ejercicio. El sistema validará
+        la misión y aplicará el multiplicador del pacto.
       </SystemMessage>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="violet">
+      <ActiveEffectsBar effects={state.effects} />
+
+      <div className="flex flex-wrap gap-2">
+        <Badge tone="neon">
           Pacto · {PACT_LABEL[state.pact]} (x{PACT_MULTIPLIER[state.pact]})
         </Badge>
+
         {completedPreview && <Badge tone="success">Mínimo alcanzado</Badge>}
+
         {bonusPreview && <Badge tone="violet">Bonus XP activo</Badge>}
       </div>
-
-      <ActiveEffectsBar effects={state.effects} />
 
       {restDay && (
         <SystemMessage>
@@ -186,8 +201,15 @@ function Quest() {
         </SystemMessage>
       )}
 
-      <form onSubmit={onSubmit} className="space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {alreadyRegistered && (
+        <SystemMessage>
+          La recompensa base diaria ya fue reclamada. Puedes actualizar los datos, pero el sistema
+          solo sumará mejoras reales.
+        </SystemMessage>
+      )}
+
+      <form onSubmit={onSubmit} className="space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {state.exercises.map((ex) => (
             <ExerciseCard
               key={ex.id}
@@ -198,34 +220,28 @@ function Quest() {
           ))}
         </div>
 
-        <div className="panel p-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="text-xs text-muted-foreground">
-            Estado:{" "}
-            {completedPreview ? (
-              <span className="text-success font-display">
-                OBJETIVO MÍNIMO DETECTADO · esfuerzo {Math.round(avg * 100)}%
-              </span>
-            ) : (
-              <span className="text-warning font-display">Pendiente</span>
-            )}
+        <SystemPanel eyebrow="Estado" title="Lectura de misión">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="text-sm text-muted-foreground">
+              Estado:{" "}
+              {completedPreview ? (
+                <span className="text-success">
+                  OBJETIVO MÍNIMO DETECTADO · esfuerzo {Math.round(avg * 100)}%
+                </span>
+              ) : (
+                <span>Pendiente</span>
+              )}
+            </div>
+
+            <NeonButton type="submit" disabled={restDay}>
+              {alreadyRegistered ? "Actualizar misión de hoy" : "⚡ Registrar y completar"}
+            </NeonButton>
           </div>
-          {state.todayLog && !state.todayLog.restAuthorized && (
-  <SystemMessage>
-    La recompensa base diaria ya fue reclamada. Puedes actualizar los datos, pero el sistema solo sumará mejoras reales.
-  </SystemMessage>
-)}
-          <NeonButton
-            type="submit"
-            variant={completedPreview ? "primary" : "ghost"}
-            disabled={restDay}
-          >
-            {state.todayLog ? "Actualizar misión de hoy" : "⚡ Registrar y completar"}
-          </NeonButton>
-        </div>
+        </SystemPanel>
       </form>
 
       {itemMessages.map((msg, i) => (
-        <SystemMessage key={`item-${i}`}>{msg}</SystemMessage>
+        <SystemMessage key={`${msg}-${i}`}>{msg}</SystemMessage>
       ))}
 
       {avatarQuote && (
@@ -236,38 +252,30 @@ function Quest() {
 
       {eventCompletions.map((n) => (
         <SystemMessage key={n.eventId}>
-          Evento completado: <span className="text-neon font-display">{n.eventName}</span>. Has
-          obtenido <span className="text-violet font-display">{n.itemName}</span> en tu inventario.{" "}
-          <span className="block mt-2 text-violet/90 italic">
-            &ldquo;
-            {getAvatarMessage({
-              affinity: state.affinity,
-              actionType: "event_completed",
-              eventName: n.eventName,
-              itemName: n.itemName,
-            })}
-            &rdquo;
-          </span>
+          Evento completado: {n.eventName}. Has obtenido {n.itemName} en tu inventario. “
+          {getAvatarMessage({
+            affinity: state.affinity,
+            actionType: "event_completed",
+            eventName: n.eventName,
+            itemName: n.itemName,
+          })}
+          ”
         </SystemMessage>
       ))}
 
       {done && (
-        <SystemPanel
-          eyebrow={done.completed ? "Resultado" : "Resultado"}
-          title={done.completed ? "Progreso registrado" : "Misión fallida"}
-          neon={done.completed}
-        >
+        <SystemPanel eyebrow="Resultado" title="Informe del día">
           {done.completed ? (
-            <div className="space-y-2 animate-fade-in-up">
-              <p className="text-sm">
-                Ganaste <span className="text-neon font-display">+{done.xpEarned} XP</span> y
-                <span className="text-violet font-display"> +{done.affinityEarned} afinidad</span>.
-                Racha actual: <strong className="text-foreground">{state.streak}</strong> días.
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Ganaste +{done.xpEarned} XP y +{done.affinityEarned} afinidad. Racha actual:{" "}
+                {state.streak} días.
               </p>
-              <div className="flex flex-wrap gap-1.5">
+
+              <div className="flex flex-wrap gap-2">
                 <Badge tone="success">Misión completada</Badge>
                 {done.xpEarned >= 150 && <Badge tone="violet">Bonus XP</Badge>}
-                {state.streak >= 3 && <Badge tone="warning">Racha en llamas</Badge>}
+                {state.streak >= 3 && <Badge tone="neon">Racha en llamas</Badge>}
               </div>
             </div>
           ) : (

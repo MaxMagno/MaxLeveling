@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+
 import { applyEventsAfterDaily } from "./events";
 import {
   applyMissionRewards,
@@ -30,32 +31,37 @@ const KEY = "maxleveling:v1";
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
+
 function mondayIso(d = new Date()) {
   const date = new Date(d);
-  const day = (date.getDay() + 6) % 7; // 0=Mon
+  const day = (date.getDay() + 6) % 7;
   date.setDate(date.getDate() - day);
   return date.toISOString().slice(0, 10);
 }
 
-const initialState: GameState = {
-  profile: null,
-  avatar: null,
-  level: 1,
-  xp: 0,
-  affinity: 0,
-  streak: 0,
-  bestStreak: 0,
-  pact: "mantener",
-  pactConfigured: false,
-  weekStartIso: mondayIso(),
-  exercises: DEFAULT_EXERCISES,
-  history: [],
-  todayLog: null,
-  events: DEFAULT_EVENTS,
-  inventory: DEFAULT_INVENTORY,
-  effects: DEFAULT_EFFECTS,
-  bodyCheckins: [],
-};
+function buildInitialState(): GameState {
+  return {
+    profile: null,
+    avatar: null,
+    level: 1,
+    xp: 0,
+    affinity: 0,
+    streak: 0,
+    bestStreak: 0,
+    pact: "mantener",
+    pactConfigured: false,
+    weekStartIso: mondayIso(),
+    exercises: DEFAULT_EXERCISES,
+    history: [],
+    todayLog: null,
+    events: DEFAULT_EVENTS,
+    inventory: DEFAULT_INVENTORY,
+    effects: DEFAULT_EFFECTS,
+    bodyCheckins: [],
+  };
+}
+
+const initialState: GameState = buildInitialState();
 
 interface Ctx {
   state: GameState;
@@ -63,6 +69,7 @@ interface Ctx {
   setAvatar: (a: AvatarProfile) => void;
   setPact: (p: PactType) => void;
   submitDaily: (values: Record<string, number>) => SubmitDailyResult;
+  activateItem: (itemId: ItemId) => UseItemResult;
   useItem: (itemId: ItemId) => UseItemResult;
   useRestPass: () => UseItemResult;
   registerBodyCheckin: (input: BodyCheckinInput) => RegisterBodyCheckinResult;
@@ -82,24 +89,48 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setState(migrateHydratedState(JSON.parse(raw) as Partial<GameState>, initialState));
       }
     } catch {
-      /* noop */
+      // noop
     }
+
     setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem(KEY, JSON.stringify(state));
+    if (hydrated) {
+      localStorage.setItem(KEY, JSON.stringify(state));
+    }
   }, [state, hydrated]);
+
+  const activateItem = (itemId: ItemId): UseItemResult => {
+    const today = todayKey();
+    const { next, result } = executeUseItem(state, itemId, today);
+
+    if (result.ok) {
+      setState((s) => ({ ...s, ...next }));
+    }
+
+    return result;
+  };
 
   const api = useMemo<Ctx>(
     () => ({
       state,
+
       setProfile: (p) => setState((s) => ({ ...s, profile: p })),
+
       setAvatar: (a) => setState((s) => ({ ...s, avatar: a })),
+
       setPact: (p) =>
-        setState((s) => ({ ...s, pact: p, pactConfigured: true, weekStartIso: mondayIso() })),
+        setState((s) => ({
+          ...s,
+          pact: p,
+          pactConfigured: true,
+          weekStartIso: mondayIso(),
+        })),
+
       submitDaily: (values) => {
         const today = todayKey();
+
         if (todayRestUsed(state.history, today) || state.todayLog?.restAuthorized) {
           const blocked: DailyLog = {
             date: today,
@@ -110,6 +141,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
             affinityEarned: 0,
             restAuthorized: true,
           };
+
           return {
             log: state.todayLog ?? blocked,
             eventCompletions: [],
@@ -118,96 +150,101 @@ export function GameProvider({ children }: { children: ReactNode }) {
         }
 
         const mult = PACT_MULTIPLIER[state.pact];
+
         const ratios = state.exercises.map((ex) => {
           const v = Number(values[ex.id] ?? 0);
           return v / ex.target;
         });
+
         const avg = ratios.reduce((a, b) => a + b, 0) / ratios.length;
         const completed = ratios.every((r) => r >= 1);
 
         let bonus = 0;
+
         if (completed) {
           const extra = avg - 1;
+
           if (extra >= 1) bonus = 150;
           else if (extra >= 0.5) bonus = 60;
           else if (extra >= 0.25) bonus = 25;
         }
+
         const baseXp = completed ? Math.round(100 * mult + bonus) : 0;
-const baseAff = completed ? 5 : -3;
+        const baseAff = completed ? 5 : -3;
 
-const existingToday = state.history.find((h) => h.date === today) ?? state.todayLog;
+        const existingToday = state.history.find((h) => h.date === today) ?? state.todayLog;
 
-if (existingToday && !existingToday.restAuthorized) {
-  const previousXp = existingToday.xpEarned ?? 0;
-  const previousAffinity = existingToday.affinityEarned ?? 0;
+        if (existingToday && !existingToday.restAuthorized) {
+          const previousXp = existingToday.xpEarned ?? 0;
+          const previousAffinity = existingToday.affinityEarned ?? 0;
 
-  const nextXpEarned = Math.max(previousXp, baseXp);
-  const nextAffinityEarned = Math.max(previousAffinity, baseAff);
+          const nextXpEarned = Math.max(previousXp, baseXp);
+          const nextAffinityEarned = Math.max(previousAffinity, baseAff);
 
-  const xpDelta = Math.max(0, nextXpEarned - previousXp);
-  const affinityDelta = Math.max(0, nextAffinityEarned - previousAffinity);
+          const xpDelta = Math.max(0, nextXpEarned - previousXp);
+          const affinityDelta = Math.max(0, nextAffinityEarned - previousAffinity);
 
-  const updatedLog: DailyLog = {
-    ...existingToday,
-    values,
-    completed: existingToday.completed || completed,
-    failed: existingToday.completed || completed ? false : !completed,
-    xpEarned: nextXpEarned,
-    affinityEarned: nextAffinityEarned,
-  };
+          const updatedLog: DailyLog = {
+            ...existingToday,
+            values,
+            completed: existingToday.completed || completed,
+            failed: existingToday.completed || completed ? false : !completed,
+            xpEarned: nextXpEarned,
+            affinityEarned: nextAffinityEarned,
+          };
 
-  const history = [...state.history.filter((h) => h.date !== today), updatedLog];
+          const history = [...state.history.filter((h) => h.date !== today), updatedLog];
 
-  const { events, inventory, completions } = applyEventsAfterDaily(
-    {
-      weekStartIso: state.weekStartIso,
-      inventory: state.inventory,
-      events: state.events,
-      exercises: state.exercises,
-    },
-    history,
-  );
+          const { events, inventory, completions } = applyEventsAfterDaily(
+            {
+              weekStartIso: state.weekStartIso,
+              inventory: state.inventory,
+              events: state.events,
+              exercises: state.exercises,
+            },
+            history,
+          );
 
-  const streak =
-    !existingToday.completed && completed
-      ? computeStreakAfterMission(true, state.streak, false)
-      : state.streak;
+          const streak =
+            !existingToday.completed && completed
+              ? computeStreakAfterMission(true, state.streak, false)
+              : state.streak;
 
-  setState((s) => {
-    const xp = Math.max(0, s.xp + xpDelta);
-    const level = levelFromXp(xp);
-    const bestStreak = Math.max(s.bestStreak, streak);
-    const affinity = Math.max(0, Math.min(100, s.affinity + affinityDelta));
+          setState((s) => {
+            const xp = Math.max(0, s.xp + xpDelta);
+            const level = levelFromXp(xp);
+            const bestStreak = Math.max(s.bestStreak, streak);
+            const affinity = Math.max(0, Math.min(100, s.affinity + affinityDelta));
 
-    return {
-      ...s,
-      history,
-      xp,
-      level,
-      streak,
-      bestStreak,
-      affinity,
-      todayLog: updatedLog,
-      events,
-      inventory,
-    };
-  });
+            return {
+              ...s,
+              history,
+              xp,
+              level,
+              streak,
+              bestStreak,
+              affinity,
+              todayLog: updatedLog,
+              events,
+              inventory,
+            };
+          });
 
-  return {
-    log: updatedLog,
-    eventCompletions: completions,
-    itemMessages:
-      xpDelta > 0 || affinityDelta > 0
-        ? [
-            `Misión de hoy actualizada. Solo se ha añadido la mejora conseguida: +${xpDelta} XP, +${affinityDelta} afinidad.`,
-          ]
-        : [
-            "La misión de hoy ya fue registrada. Puedes editarla, pero no ganarás recompensas duplicadas.",
-          ],
-  };
-}
+          return {
+            log: updatedLog,
+            eventCompletions: completions,
+            itemMessages:
+              xpDelta > 0 || affinityDelta > 0
+                ? [
+                    `Misión de hoy actualizada. Solo se ha añadido la mejora conseguida: +${xpDelta} XP, +${affinityDelta} afinidad.`,
+                  ]
+                : [
+                    "La misión de hoy ya fue registrada. Puedes editarla, pero no ganarás recompensas duplicadas.",
+                  ],
+          };
+        }
 
-const rewards = applyMissionRewards(
+        const rewards = applyMissionRewards(
           completed,
           baseXp,
           baseAff,
@@ -226,15 +263,16 @@ const rewards = applyMissionRewards(
         };
 
         const history = [...state.history.filter((h) => h.date !== log.date), log];
+
         const { events, inventory, completions } = applyEventsAfterDaily(
-  {
-    weekStartIso: state.weekStartIso,
-    inventory: state.inventory,
-    events: state.events,
-    exercises: state.exercises,
-  },
-  history,
-);
+          {
+            weekStartIso: state.weekStartIso,
+            inventory: state.inventory,
+            events: state.events,
+            exercises: state.exercises,
+          },
+          history,
+        );
 
         const streak = computeStreakAfterMission(completed, state.streak, rewards.streakShieldUsed);
 
@@ -243,6 +281,7 @@ const rewards = applyMissionRewards(
           const level = levelFromXp(xp);
           const bestStreak = Math.max(s.bestStreak, streak);
           const affinity = Math.max(0, Math.min(100, s.affinity + log.affinityEarned));
+
           return {
             ...s,
             history,
@@ -257,49 +296,48 @@ const rewards = applyMissionRewards(
             effects: rewards.effects,
           };
         });
+
         return {
           log,
           eventCompletions: completions,
           itemMessages: rewards.messages,
         };
       },
-      useItem: (itemId) => {
-        const today = todayKey();
-        const { next, result } = executeUseItem(state, itemId, today);
-        if (result.ok) {
-          setState((s) => ({ ...s, ...next }));
-        }
-        return result;
-      },
-      useRestPass: () => {
-        const today = todayKey();
-        const { next, result } = executeUseItem(state, "rest_pass", today);
-        if (result.ok) {
-          setState((s) => ({ ...s, ...next }));
-        }
-        return result;
-      },
+
+      activateItem,
+
+      useItem: activateItem,
+
+      useRestPass: () => activateItem("rest_pass"),
+
       registerBodyCheckin: (input) => {
         const today = todayKey();
         const { next, ...result } = submitBodyCheckin(state, input, today);
+
         if (result.ok) {
           setState((s) => ({ ...s, ...next }));
         }
+
         return result;
       },
+
       reset: () => {
         localStorage.removeItem(KEY);
-        setState(initialState);
+        setState(buildInitialState());
       },
     }),
     [state],
   );
 
-  // sync todayLog desde history al hidratar
   useEffect(() => {
     if (!hydrated) return;
+
     const t = state.history.find((h) => h.date === todayKey()) ?? null;
-    if (t !== state.todayLog) setState((s) => ({ ...s, todayLog: t }));
+
+    if (t !== state.todayLog) {
+      setState((s) => ({ ...s, todayLog: t }));
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
 
@@ -308,6 +346,8 @@ const rewards = applyMissionRewards(
 
 export function useGame() {
   const ctx = useContext(GameCtx);
+
   if (!ctx) throw new Error("useGame fuera de GameProvider");
+
   return ctx;
 }
