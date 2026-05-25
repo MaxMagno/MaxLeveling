@@ -90,9 +90,15 @@ export interface EventCompletionNotice {
   itemName: string;
 }
 
+export interface UseItemResult {
+  ok: boolean;
+  message: string;
+}
+
 export interface SubmitDailyResult {
   log: DailyLog;
   eventCompletions: EventCompletionNotice[];
+  itemMessages: string[];
 }
 
 export interface InventorySlot {

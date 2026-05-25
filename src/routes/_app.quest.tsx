@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SystemPanel, SystemMessage } from "@/components/ml/SystemPanel";
+import { ActiveEffectsBar } from "@/components/ml/ActiveEffectsBar";
 import { NeonButton } from "@/components/ml/NeonButton";
 import { Badge } from "@/components/ml/Badge";
 import { TextInput } from "@/components/ml/Field";
@@ -82,12 +83,16 @@ function Quest() {
     Object.fromEntries(state.exercises.map((e) => [e.id, state.todayLog?.values[e.id] ?? 0])));
   const [done, setDone] = useState(state.todayLog ?? null);
   const [eventCompletions, setEventCompletions] = useState<EventCompletionNotice[]>([]);
+  const [itemMessages, setItemMessages] = useState<string[]>([]);
+
+  const restDay = !!state.todayLog?.restAuthorized;
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const { log, eventCompletions: completions } = submitDaily(vals);
+    const { log, eventCompletions: completions, itemMessages: msgs } = submitDaily(vals);
     setDone(log);
     setEventCompletions(completions);
+    setItemMessages(msgs);
     if (log.completed && typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -110,6 +115,14 @@ function Quest() {
         {bonusPreview && <Badge tone="violet">Bonus XP activo</Badge>}
       </div>
 
+      <ActiveEffectsBar effects={state.effects} />
+
+      {restDay && (
+        <SystemMessage>
+          Descanso autorizado hoy. No puedes registrar misión; tu afinidad y racha se mantienen.
+        </SystemMessage>
+      )}
+
       <form onSubmit={onSubmit} className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {state.exercises.map((ex) => (
@@ -125,11 +138,15 @@ function Quest() {
               ? <span className="text-success font-display">OBJETIVO MÍNIMO DETECTADO · esfuerzo {Math.round(avg * 100)}%</span>
               : <span className="text-warning font-display">Pendiente</span>}
           </div>
-          <NeonButton type="submit" variant={completedPreview ? "primary" : "ghost"}>
+          <NeonButton type="submit" variant={completedPreview ? "primary" : "ghost"} disabled={restDay}>
             ⚡ Registrar y completar
           </NeonButton>
         </div>
       </form>
+
+      {itemMessages.map((msg, i) => (
+        <SystemMessage key={`item-${i}`}>{msg}</SystemMessage>
+      ))}
 
       {eventCompletions.map((n) => (
         <SystemMessage key={n.eventId}>
@@ -157,7 +174,9 @@ function Quest() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Hoy no se cumplió el mínimo. Sin XP, sin racha. El sistema esperará tu próximo intento.
+              {itemMessages.some((m) => m.includes("Escudo"))
+                ? "Hoy no se cumplió el mínimo. Sin XP. Tu escudo protegió la racha."
+                : "Hoy no se cumplió el mínimo. Sin XP, sin racha. El sistema esperará tu próximo intento."}
             </p>
           )}
         </SystemPanel>

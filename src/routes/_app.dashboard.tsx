@@ -3,6 +3,7 @@ import { SystemPanel } from "@/components/ml/SystemPanel";
 import { NeonButton } from "@/components/ml/NeonButton";
 import { XPBar, StreakBadge } from "@/components/ml/XPBar";
 import { Badge } from "@/components/ml/Badge";
+import { ActiveEffectsBar } from "@/components/ml/ActiveEffectsBar";
 import { AvatarCard } from "@/components/ml/AvatarCard";
 import { useGame } from "@/lib/game/store";
 import {
@@ -31,6 +32,7 @@ function Dashboard() {
   const xpInLevel = state.xp - xpPrev;
   const xpNeeded = xpNext - xpPrev;
   const completedToday = !!state.todayLog?.completed;
+  const restToday = !!state.todayLog?.restAuthorized;
   const line = avatarLine(state.affinity, completedToday, state.streak, state.profile!.name);
   const mult = PACT_MULTIPLIER[state.pact];
 
@@ -49,11 +51,12 @@ function Dashboard() {
         </div>
         <div className="flex flex-wrap gap-1.5">
           <Badge tone="success">● System online</Badge>
-          <Badge tone={completedToday ? "success" : "warning"}>
-            {completedToday ? "Misión completada" : "Misión activa"}
+          <Badge tone={restToday ? "violet" : completedToday ? "success" : "warning"}>
+            {restToday ? "Descanso autorizado" : completedToday ? "Misión completada" : "Misión activa"}
           </Badge>
           <Badge tone="violet">Pacto x{mult}</Badge>
         </div>
+        <ActiveEffectsBar effects={state.effects} />
       </div>
 
       {/* Grid principal: en móvil quest primero, avatar después */}
