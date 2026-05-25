@@ -56,6 +56,44 @@ export interface DailyLog {
   failed?: boolean;
 }
 
+export type ItemId =
+  | "rest_pass"
+  | "streak_shield"
+  | "xp_bonus_50"
+  | "affinity_mult";
+
+export type ItemRarity = "comun" | "raro" | "epico";
+
+export interface ItemDefinition {
+  id: ItemId;
+  name: string;
+  description: string;
+  rarity: ItemRarity;
+}
+
+export type GameEventStatus = "active" | "completed";
+
+export interface GameEvent {
+  id: string;
+  name: string;
+  description: string;
+  rewardItemId: ItemId;
+  progress: number;
+  target: number;
+  status: GameEventStatus;
+}
+
+export interface InventorySlot {
+  itemId: ItemId;
+  quantity: number;
+}
+
+export interface ActiveEffect {
+  id: string;
+  itemId: ItemId;
+  activatedAt: string; // YYYY-MM-DD
+}
+
 export interface GameState {
   profile: UserProfile | null;
   avatar: AvatarProfile | null;
@@ -70,7 +108,16 @@ export interface GameState {
   exercises: Exercise[];
   history: DailyLog[];
   todayLog: DailyLog | null;
+  events: GameEvent[];
+  inventory: InventorySlot[];
+  effects: ActiveEffect[];
 }
+
+export const ITEM_RARITY_LABEL: Record<ItemRarity, string> = {
+  comun: "Común",
+  raro: "Raro",
+  epico: "Épico",
+};
 
 export const PACT_MULTIPLIER: Record<PactType, number> = {
   progresion: 1.10,

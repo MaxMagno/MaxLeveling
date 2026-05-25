@@ -1,5 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
+  DEFAULT_EFFECTS, DEFAULT_INVENTORY, MOCK_EVENTS,
+} from "./mock";
+import {
   DEFAULT_EXERCISES, PACT_MULTIPLIER, levelFromXp,
   type AvatarProfile, type DailyLog, type GameState, type PactType, type UserProfile,
 } from "./types";
@@ -30,6 +33,9 @@ const initialState: GameState = {
   exercises: DEFAULT_EXERCISES,
   history: [],
   todayLog: null,
+  events: MOCK_EVENTS,
+  inventory: DEFAULT_INVENTORY,
+  effects: DEFAULT_EFFECTS,
 };
 
 interface Ctx {
