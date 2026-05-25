@@ -10,6 +10,20 @@ export const EVENT_IDS = {
   semanaPerfecta: "semana_perfecta",
 } as const;
 
+export const DEFAULT_EVENT_IDS: readonly string[] = [
+  EVENT_IDS.piernasAcero,
+  EVENT_IDS.cazadorConstante,
+  EVENT_IDS.nucleoEstable,
+  EVENT_IDS.semanaPerfecta,
+];
+
+export function hasValidEventSet(events: GameEvent[] | undefined): boolean {
+  if (!events?.length) return false;
+  const ids = new Set(events.map((e) => e.id));
+  return DEFAULT_EVENT_IDS.length === ids.size
+    && DEFAULT_EVENT_IDS.every((id) => ids.has(id));
+}
+
 function weekLogs(history: DailyLog[], weekStartIso: string): DailyLog[] {
   return history.filter((h) => h.date >= weekStartIso);
 }
@@ -86,4 +100,19 @@ export function applyEventsAfterDaily(
   });
 
   return { events, inventory, completions };
+}
+
+/** Sincroniza progreso visual desde history sin otorgar recompensas. */
+export function syncEventsProgress(
+  events: GameEvent[],
+  history: DailyLog[],
+  weekStartIso: string,
+  exercises: GameState["exercises"],
+): GameEvent[] {
+  const logs = weekLogs(history, weekStartIso);
+  return events.map((event) => {
+    if (event.status === "completed") return event;
+    const progress = progressForEvent(event.id, logs, exercises);
+    return { ...event, progress: Math.min(progress, event.target) };
+  });
 }

@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { applyEventsAfterDaily } from "./events";
+import { migrateHydratedState } from "./migrate";
 import {
-  DEFAULT_EFFECTS, DEFAULT_INVENTORY, MOCK_EVENTS,
+  DEFAULT_EFFECTS, DEFAULT_EVENTS, DEFAULT_INVENTORY,
 } from "./mock";
 import {
   DEFAULT_EXERCISES, PACT_MULTIPLIER, levelFromXp,
@@ -35,7 +36,7 @@ const initialState: GameState = {
   exercises: DEFAULT_EXERCISES,
   history: [],
   todayLog: null,
-  events: MOCK_EVENTS,
+  events: DEFAULT_EVENTS,
   inventory: DEFAULT_INVENTORY,
   effects: DEFAULT_EFFECTS,
 };
@@ -58,7 +59,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setState({ ...initialState, ...JSON.parse(raw) });
+      if (raw) {
+        setState(migrateHydratedState(JSON.parse(raw) as Partial<GameState>, initialState));
+      }
     } catch {/* noop */}
     setHydrated(true);
   }, []);

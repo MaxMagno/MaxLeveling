@@ -34,11 +34,12 @@ export const ITEM_CATALOG: Record<ItemId, ItemDefinition> = {
   },
 };
 
-export const MOCK_EVENTS: GameEvent[] = [
+/** Catálogo canónico de eventos activos (0.3). */
+export const DEFAULT_EVENTS: GameEvent[] = [
   {
     id: "piernas_acero",
     name: "Piernas de acero",
-    description: "200 sentadillas en la semana.",
+    description: "200 sentadillas por semana.",
     rewardItemId: "rest_pass",
     progress: 0,
     target: 200,
@@ -47,16 +48,16 @@ export const MOCK_EVENTS: GameEvent[] = [
   {
     id: "cazador_constante",
     name: "Cazador constante",
-    description: "5 días de misión completados en la semana.",
+    description: "5 días de misión completada en la semana.",
     rewardItemId: "streak_shield",
-    progress: 2,
+    progress: 0,
     target: 5,
     status: "active",
   },
   {
     id: "nucleo_estable",
     name: "Núcleo estable",
-    description: "3 días de plancha completada en la semana.",
+    description: "3 días con plancha completada en la semana.",
     rewardItemId: "affinity_mult",
     progress: 0,
     target: 3,
@@ -65,13 +66,16 @@ export const MOCK_EVENTS: GameEvent[] = [
   {
     id: "semana_perfecta",
     name: "Semana perfecta",
-    description: "7 días de misión completados en la semana.",
+    description: "7 días de misión completada en la semana.",
     rewardItemId: "xp_bonus_50",
     progress: 0,
     target: 7,
     status: "active",
   },
 ];
+
+/** @deprecated Usar DEFAULT_EVENTS */
+export const MOCK_EVENTS = DEFAULT_EVENTS;
 
 export const DEFAULT_INVENTORY: InventorySlot[] = [
   { itemId: "rest_pass", quantity: 2 },
